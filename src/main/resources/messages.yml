@@ -1,0 +1,70 @@
+# Parse as MiniMessage
+# https://webui.adventure.kyori.net/
+
+custom-tags:
+  'prefix': "<red><bold>EpicHead</bold></red> <dark_gray>»</dark_gray>"
+  'spawn_prefix': "<bold><green>SPAWN</green></bold> <dark_gray>»</dark_gray>"
+  'tpa_prefix': "<bold><aqua>TPA</aqua></bold> <dark_gray>»</dark_gray>"
+  'warp_prefix': "<bold><red>WARP</red></bold> <dark_gray>»</dark_gray>"
+  'home_prefix': "<bold><yellow>HOME</yellow></bold> <dark_gray>»</dark_gray>"
+
+general:
+  not-permission: "<prefix> Lo siento, no tienes los permisos suficientes"
+  help:
+    - "<st>        </st> <bold><gray>EpicHead</gray> <white>Plugin</white></bold> <aqua>Ayuda</aqua> <st>        </st>"
+    - ""
+    - "<aqua><click:suggest_command:'/eh warp add '>/eh warp add <warp> </click><light_purple>- <yellow>Establece un warp"
+    - "<aqua><click:suggest_command:'/eh warp del '>/eh warp del <warp> </click><light_purple>- <yellow>Borrar un warp"
+    - - "<aqua><click:suggest_command:'/eh warp rel '>/eh warp rel <warp> </click><light_purple>- <yellow>Reubicar un warp"
+    - "<aqua><click:suggest_command:'/eh setspawn '>/eh setspawn</click><light_purple>- <yellow>Establece el spawn"
+    - "<aqua><click:suggest_command:'/eh reload'>/eh reload </click><light_purple>- <yellow>Recargar los YML"
+  reload:
+    success: "<prefix> <green>Se ha recargado el plugin con éxito</green>"
+    failed: "<prefix> <red>Ocurrió un error al recargar el plugin. Revisa la consola</red>"
+  spawn:
+    set-success: "<prefix> <green>Se ha cambiado la ubicación del spawn por tu actual ubicación</green>"
+    delay-start: "<spawn_prefix> Serás enviado al spawn en <yellow><time> segundos</yellow>, ¡no te muevas!"
+    canceled-by-movement: "<spawn_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+    tp-success: "<spawn_prefix> <green>Has sido teletransportado al spawn"
+    tp-failed: "<spawn_prefix> <red>Ocurrió un error al llevarte al spawn"
+  tpa:
+    tpa-no-player-specified: "<tpa_prefix> <red>No especificaste ningún usuario"
+    tpa-player-not-found: "<tpa_prefix> <red>No encontré al jugador <yellow><target>"
+    tpa-self: "<tpa_prefix> <i>Suena filosófico, pero no puedes teletransportarte hacia ti mismo"
+    tpa-sent: "<tpa_prefix> <green>Has enviado una petición de transporte hacia <yellow><target>"
+    tpa-received:
+      - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
+      - "Has recibido una petición de <aqua><player></aqua> para que se teletransporte <u>hacia ti</u>"
+      - ""
+      - "<b>   <green><click:run_command:'/tpaccept'><hover:show_text:'<green>Aceptar la petición'>[Aceptar]</hover></click></green>      <red><click:run_command:'/tpadeny'><hover:show_text:'<red>Denegar la petición'>[Denegar]</hover></click></red></b>"
+      - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
+    no-tpa-to-accept: "<tpa_prefix> <red>No tienes ninguna petición de TPA pendiente... o se han expirado."
+    no-pending-tpa: "<tpa_prefix> <red>No tienes ninguna petición pendiente o se han expirado."
+    player-got-offline: "<tpa_prefix> <red>El jugador <yellow><player></yellow> se desconectó"
+    tpa-accepted-caller: "<tpa_prefix> <yellow><player></yellow><green> aceptó tu solicitud.</green> <yellow>Serás teleportado en <red><time> segundos</red>, ¡no te muevas!</yellow>"
+    tp-success-target: "<tpa_prefix> <yellow><player></yellow> <green> se ha teleportado hacia ti"
+    tp-success: "<tpa_prefix> <green>Te has teleportado hacia <yellow><player></yellow>"
+    canceled-by-movement: "<tpa_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+  warp:
+    warp-exist: "<warp_prefix> <red>Ya existe una warp con nombre <yellow><warp></yellow>.</red>"
+    warp-no-exist: "<warp_prefix> <red>La warp <yellow><warp></yellow> no existe.</red>"
+    warp-add-success: "<warp_prefix> <green>Se ha creado la warp <yellow><warp></yellow> exitosamente.</green>"
+    warp-rel-success: "<warp_prefix> <green>Se ha reubicado la warp <yellow><warp></yellow> exitosamente.</green>"
+    warp-del-success: "<warp_prefix> <green>Se ha eliminado la warp <yellow><warp></yellow> exitosamente.</green>"
+    delay-start: "<warp_prefix> Serás enviado a <warp_display> en <yellow><time> segundos</yellow>, ¡no te muevas!"
+    canceled-by-movement: "<warp_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+    generic-tp-success: "<warp_prefix> <green>Has sido teletransportado hacia <yellow><warp_display></yellow><green>."
+  home:
+    error-homes-not-loaded: "<home_prefix> <red>Ocurrió un error al intentar obtener tus hogares. Por favor vuelve a intentarlo más tarde</red>"
+    home-no-exist: "<home_prefix> <red>No tienes ningún hogar llamado <yellow><home></yellow>.</red>"
+    tp-success: "<home_prefix> <green>Has sido teleportado hacia tu hogar <yellow><home></yellow>."
+    max-homes-reached: "<home_prefix> <red>Lo siento, has alcanzado el límite de hogares que puedes tener."
+    home-already-exists: "<home_prefix> <red>Ya tienes una casa con este nombre. Selecciona otro.</red>"
+    home-set-success: "<home_prefix> <green>Hogar <yellow><home></yellow> establecido."
+    home-del-success: "<home_prefix> <gray>El hogar <yellow><home></yellow> ha sido eliminado."
+
+
+error:
+  generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
+  spawn-pending-task: "<spawn_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
+  home-pending-task: "<home_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."

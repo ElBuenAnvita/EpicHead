@@ -1,0 +1,49 @@
+  debug: true
+
+database:
+  mysql:
+    host: localhost
+    port: 3306
+    dbname: EpicHead
+    user: root
+    password: 123SecurePassword
+
+spawn:
+  teleport-on-join: false
+  teleport-on-respawn: true
+  location: ~
+
+times:
+  pay:
+    cooldown: 5
+  spawn:
+    teleport-delay: 5
+    cancel-on-move: true
+  warp:
+    teleport-delay: 5
+    cancel-on-move: true
+  tpa:
+    teleport-delay: 5
+    expire-petition: 60
+    cancel-on-move: true
+  home:
+    teleport-delay: 5
+    cancel-on-move: true
+
+economy:
+  currency-name: "Oro"
+  currency-name-plural: "Oro"
+  max-digits-allowed: 13
+  fraction-digits: 4
+  currency-symbol: "$"
+  grouping-separator: "."
+  decimal-separator: ","
+  fraction-digits-shown: 2
+
+performance:
+  save-db-player-every-transaction: false
+  update-player-every-home: false
+  pay-command-only-online: true
+
+warps:
+

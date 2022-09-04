@@ -1,0 +1,9 @@
+name: EpicHead
+version: '${project.version}'
+main: es.raxthelag.epichead.Main
+api-version: 1.18
+load: STARTUP
+depend: [ Vault ]
+softdepend: [ LuckPerms ]
+authors: [ ElBuenAnvita ]
+website: https://anvico.club/

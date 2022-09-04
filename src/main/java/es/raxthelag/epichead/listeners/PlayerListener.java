@@ -1,0 +1,95 @@
+package es.raxthelag.epichead.listeners;
+
+import es.raxthelag.epichead.Main;
+import es.raxthelag.epichead.controllers.DataConnection;
+import es.raxthelag.epichead.controllers.EpicPlayer;
+import es.raxthelag.epichead.objects.Task;
+import es.raxthelag.epichead.objects.tasks.SpawnTask;
+import es.raxthelag.epichead.objects.tasks.TpaTask;
+import es.raxthelag.epichead.objects.tasks.WarpTask;
+import es.raxthelag.epichead.util.MessageUtil;
+import es.raxthelag.epichead.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+
+import java.sql.SQLException;
+
+public class PlayerListener implements Listener {
+
+    @EventHandler
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            try {
+                Main.getInstance().getDataConnection().loadPlayer(EpicPlayer.get(e.getName()));
+                Main.getInstance().getDataConnection().loadPlayerHomes(EpicPlayer.get(e.getName()));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    @EventHandler
+    public void onLogout(PlayerQuitEvent e) {
+        EpicPlayer epicPlayer = EpicPlayer.get(e.getPlayer());
+        epicPlayer.setLastSeenLocation(e.getPlayer().getLocation());
+
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            try {
+                Main.getInstance().getDataConnection().savePlayer(epicPlayer);
+                Main.getInstance().getDataConnection().savePlayerHomes(epicPlayer);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent e) {
+        if (e.getTo() == null) return;
+        if (!(e.getFrom().getZ() != e.getTo().getZ() && e.getFrom().getX() != e.getTo().getX())) return;
+
+        Player p = e.getPlayer();
+        if (!Util.isPlayerTasked(p)) return;
+
+        Task entry = Util.getTask(p);
+        if (entry == null) return;
+
+        // MessageUtil.debug(entry.toString(), false);
+        // MessageUtil.debug(entry.getRecipient().toString() + "|" + entry.getSender().toString() + "|" + entry.getTaskId(), false);
+
+        Bukkit.getScheduler().cancelTask(entry.getTaskId());
+
+        if (entry instanceof TpaTask) MessageUtil.sendMessage(p, "general.tpa.canceled-by-movement", "Cancelado por movimiento");
+        if (entry instanceof SpawnTask) MessageUtil.sendMessage(p, "general.spawn.canceled-by-movement", "Cancelado por movimiento");
+        if (entry instanceof WarpTask) MessageUtil.sendMessage(p, "general.warp.canceled-by-movement", "Cancelado por movimiento");
+
+        Main.pendingTasks.remove(p.getName());
+    }
+
+    @EventHandler
+    public void onDisconnect(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if (!Util.isPlayerTasked(p)) return;
+
+        // Bukkit.getScheduler().cancelTask(Main.pendingTasks.get(p.getName()).entrySet().iterator().next().getValue());
+        Bukkit.getScheduler().cancelTask(Main.pendingTasks.get(p.getName()).getTaskId());
+        Main.pendingTasks.remove(p.getName());
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent e) {
+        if (!Main.getInstance().getConfig().getBoolean("spawn.teleport-on-respawn", false)) return;
+
+        Location spawn = Main.getInstance().getConfig().getLocation("spawn.location");
+
+        if (spawn == null) { MessageUtil.sendMessage(e.getPlayer(), "general.spawn.tp-failed", "<spawn_prefix> <red>Ocurrió un error al llevarte al spawn"); return; }
+        e.setRespawnLocation(spawn);
+    }
+}
