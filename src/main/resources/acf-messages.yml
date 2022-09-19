@@ -1,0 +1,43 @@
+acf-minecraft:
+  invalid_world: "Error: Ese mundo no existe."
+  you_must_be_holding_item: "Error: Tienes que sostener un item en tu mano."
+  player_is_vanished_confirm: |
+    Advertencia: <c2>{vanished}</c2> esta oculto. No remova su cobertura!\n\
+    Para confirmar tu acción, añade <c2>:confirm</c2> al final de su nombre.\n\
+    Ex: <c2>{vanished}:confirm</c2>
+  username_too_short: "Error: Nombre de usuario demasiado corto, debería ser al menos tres caracteres de largo."
+  is_not_a_valid_name: "Error: <c2>{name}</c2> no es un nombre de usuario valido."
+  multiple_players_match: "Error: Se encontró más de un jugador que coincide: <c2>{search}</c2> <c3>({all})</c3>, por favor sea más específico."
+  no_player_found_server: "No se encontro un jugador con el nombre: <c2>{search}</c2> conectado a este servidor."
+  no_player_found_offline: "No se ha podido encontrar un jugador con el nombre: <c2>{search}</c2>."
+  no_player_found: "No se ha podido encontrar un jugador con el nombre: <c2>{search}</c2>."
+  location_please_specify_world: "Error: Por favor especifique el mundo. Ejemplo: <c2>mundo:x,y,z</c2>."
+  location_please_specify_xyz: "Error: Por favor especifique las coordenadas (x, y, z). Ejemplo: <c2>mundo:x,y,z</c2>."
+  location_console_not_relative: "Error: Es posible que la consola no utilice coordenadas relativas a la entidad para la ubicación."
+
+acf-core:
+  error_generic_logged: "Se ha producido un error. El problema ha sido registrado. Disculpe las inconveniencias."
+  unknown_command: "Comando desconocido, por favor use <c2>/help</c2>"
+  invalid_syntax: "Uso: <c2>{command}</c2> <c3>{syntax}</c3>"
+  error_prefix: "Error: { message }"
+  error_performing_command: "Lo siento, pero hubo un error ejecutando este comando."
+  info_message: "{message}"
+  please_specify_one_of: "Error: Por favor especifique uno de los (<c2>{valid}</c2>)."
+  must_be_a_number: "Error: Tiene que ser un número."
+  must_be_min_length: "Error: Debería tener al menos {min} caracteres de largo."
+  must_be_max_length: "Error: Debería tener como máximo {max} caracteres de largo."
+  please_specify_at_most: "Error: Por favor especifique un valor con un máximo de {max}."
+  please_specify_at_least: "Error: Por favor especifique {min}."
+  not_allowed_on_console: "Error: La consola no puede ejecutar este comando."
+  could_not_find_player: "Error: No se pudo encontrar un jugador con el nombre: <c2>{search}</c2>"
+  no_command_matched_search: "No se ha encontrado un comando que coincida con <c2>{search}</c2>."
+  help_page_information: "- Mostrando página <c2>{page}</c2> de <c2>{totalpages}</c2> (<c3>{results}</c3> resultados)."
+  help_format: "<c1>{command}</c1> <c2>{parameters}</c2> <c3>{separator} {description}</c3>"
+  help_detailed_header: '<c3>=== </c3><c1>Mostrando ayuda detallada para </c1><c2>{commandprefix}{command}</c2><c3> ===</c3>'
+  help_detailed_command_format: "<c1>{command}</c1> <c2>{parameters}</c2> <c3>{separator} {description}</c3>"
+  help_detailed_parameter_format: "<c2>{syntaxorname}</c2>: <c3>{description}</c3>"
+  help_search_header: '<c3>=== </c3><c1>Resultados de la busqueda para </c1><c2>{commandprefix}{command} {search}</c2><c3> ===</c3>'
+  permission_denied : " Lo siento, pero no tienes permiso para ejecutar ese comando."
+  permission_denied_parameter : " Lo siento, pero no tienes permiso para ejecutar ese comando."
+  help_no_results : " Error: No hay resultados."
+  help_header: ' <c3>=== </c3><c1>Viendo ayuda para </c1><c2>{commandprefix}{command}</c2><c3> ===</c3>'

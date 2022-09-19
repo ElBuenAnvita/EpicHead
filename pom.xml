@@ -6,7 +6,7 @@
 
     <groupId>es.raxthelag</groupId>
     <artifactId>epichead</artifactId>
-    <version>0.3-ALPHA-2.a</version>
+    <version>0.9-ALPHA-1.a</version>
     <packaging>jar</packaging>
 
     <name>EpicHead</name>

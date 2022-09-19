@@ -10,10 +10,12 @@ import es.raxthelag.epichead.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @CommandAlias("epichead|eh")
 @Description("EpicHead admin console command")
@@ -31,9 +33,9 @@ public class EpicHeadCommand extends BaseCommand {
     @Subcommand("setspawn")
     @CommandPermission("epiclol.admin.setspawn")
     public void onSetSpawn(Player player) {
-        Main.getInstance().getConfig().set("spawn.location", player.getLocation());
+        Main.getInstance().getLocations().set("spawn", player.getLocation());
         // Main.getInstance().getConfig().options().copyDefaults(true);
-        Main.getInstance().saveConfig();
+        Main.getInstance().saveLocations();
 
         MessageUtil.sendMessage(player, "general.spawn.set-success", "Guardado con éxito");
     }
@@ -83,15 +85,59 @@ public class EpicHeadCommand extends BaseCommand {
         MessageUtil.sendMessage(player, "general.warp.warp-del-success", "Se ha reubicado", Placeholder.unparsed("warp", name));
     }
 
-    @Subcommand("eco add")
+    @Subcommand("eco add|give")
     @CommandPermission("epiclol.admin.eco.add")
-    public void onEcoAdd(Player player, String playerName, @Single int amount) {
+    @CommandCompletion("@players @nothing")
+    public void onEcoAdd(CommandSender sender, String playerName, @Single double amount) {
         EpicPlayer epicPlayer = EpicPlayer.get(playerName);
-        OfflinePlayer offlinePlayer = null;
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            try {
+                if (!epicPlayer.isLoaded()) {
+                    if (!Main.getInstance().getDataConnection().playerExistInDatabase(epicPlayer)) {
+                        MessageUtil.sendMessage(sender, "general.eco.error-player-offline-and-inexistent", "Jugador inexistente", Placeholder.unparsed("player", playerName));
+                        return;
+                    }
+                    Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                }
+                epicPlayer.deposit(amount, true);
+                // TODO MESSAGE DEPOSIT SUCCESS
+
+                if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
+            } catch (SQLException e) {
+                e.printStackTrace();
+                MessageUtil.sendMessage(sender, "general.eco.error-generic", "Error. Revise la consola.");
+            }
+        });
+
+        /* OfflinePlayer offlinePlayer = null;
         if (epicPlayer.isLoaded() && epicPlayer.getUniqueId() != null) {
             offlinePlayer = Bukkit.getOfflinePlayer(epicPlayer.getUniqueId());
-        } else { offlinePlayer = Bukkit.getOfflinePlayer(playerName); }
-
+        } else { offlinePlayer = Bukkit.getOfflinePlayer(playerName); } */
         // EconomyHolder.
+    }
+
+    @Subcommand("eco remove")
+    @CommandPermission("epiclol.admin.eco.remove")
+    @CommandCompletion("@players @nothing")
+    public void onEcoRemove(CommandSender sender, String playerName, @Single double amount) {
+        EpicPlayer epicPlayer = EpicPlayer.get(playerName);
+        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+            try {
+                if (!epicPlayer.isLoaded()) {
+                    if (!Main.getInstance().getDataConnection().playerExistInDatabase(epicPlayer)) {
+                        MessageUtil.sendMessage(sender, "general.eco.error-player-offline-and-inexistent", "Jugador inexistente", Placeholder.unparsed("player", playerName));
+                        return;
+                    }
+                    Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                }
+                epicPlayer.withdraw(amount, true);
+                // TODO MESSAGE WITHDRAW SUCCESS
+
+                if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
+            } catch (SQLException e) {
+                e.printStackTrace();
+                MessageUtil.sendMessage(sender, "general.eco.error-generic", "Error. Revise la consola.");
+            }
+        });
     }
 }

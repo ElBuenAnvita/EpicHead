@@ -6,12 +6,19 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.List;
 
 public class EconomyHolder implements Economy {
+    public String CURRENCY_SYMBOL = Main.getInstance().getConfig().getString("economy.currency-symbol", "$");
+    public char GROUPING_SEPARATOR = Main.getInstance().getConfig().getString("economy.grouping-separator", ".").charAt(0);
+    public char DECIMAL_SEPARATOR = Main.getInstance().getConfig().getString("economy.decimal-separator", ",").charAt(0);
+    public int DECIMAL_PLACES = Main.getInstance().getConfig().getInt("economy.fraction-digits", 4);
+    public int DECIMAL_PLACES_SHOWN = Main.getInstance().getConfig().getInt("economy.fraction-digits-shown", 2);
 
     /**
      * Checks if economy method is enabled.
@@ -53,7 +60,8 @@ public class EconomyHolder implements Economy {
     @Override
     public int fractionalDigits() {
         // return 2;
-        return Main.getInstance().getConfig().getInt("economy.fraction-digits", 2);
+        // return Main.getInstance().getConfig().getInt("economy.fraction-digits", 2);
+        return DECIMAL_PLACES;
     }
 
     /**
@@ -65,12 +73,32 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public String format(double amount) {
+        /* NumberFormat df = NumberFormat.getCurrencyInstance();
+        DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+        dfs.setCurrencySymbol(CURRENCY_SYMBOL);
+        dfs.setGroupingSeparator(GROUPING_SEPARATOR);
+        dfs.setMonetaryDecimalSeparator(DECIMAL_SEPARATOR);
+        df.setMaximumFractionDigits(fractionalDigits());
+
+        ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
+        return df.format(amount); */
+        return format(BigDecimal.valueOf(amount));
+    }
+
+    /**
+     * Format amount into a human-readable String This provides translation into
+     * economy specific formatting to improve consistency between plugins.
+     *
+     * @param amount to format
+     * @return Human-readable string describing amount
+     */
+    public String format(BigDecimal amount) {
         NumberFormat df = NumberFormat.getCurrencyInstance();
         DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-        dfs.setCurrencySymbol(Main.getInstance().getConfig().getString("economy.currency-symbol", "$"));
-        dfs.setGroupingSeparator(Main.getInstance().getConfig().getString("economy.grouping-separator", ".").charAt(0));
-        dfs.setMonetaryDecimalSeparator(Main.getInstance().getConfig().getString("economy.decimal-separator", ",").charAt(0));
-        df.setMaximumFractionDigits(Main.getInstance().getConfig().getInt("economy.fraction-digits-shown", 2));
+        dfs.setCurrencySymbol(CURRENCY_SYMBOL);
+        dfs.setGroupingSeparator(GROUPING_SEPARATOR);
+        dfs.setMonetaryDecimalSeparator(DECIMAL_SEPARATOR);
+        df.setMaximumFractionDigits(DECIMAL_PLACES_SHOWN);
 
         ((DecimalFormat) df).setDecimalFormatSymbols(dfs);
         return df.format(amount);
@@ -121,13 +149,13 @@ public class EconomyHolder implements Economy {
     }
 
     /**
-     * @param playerName
-     * @param worldName
+     * @param playerName player to check
+     * @param worldName name of the world
      * @deprecated As of VaultAPI 1.4 use {@link #hasAccount(OfflinePlayer, String)} instead.
      */
     @Override
     public boolean hasAccount(String playerName, String worldName) {
-        return false;
+        return true;
     }
 
     /**
@@ -141,7 +169,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
-        return false;
+        return true;
     }
 
     /**
@@ -150,7 +178,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public double getBalance(String playerName) {
-        return 0;
+        return getBalance(Bukkit.getOfflinePlayer(playerName));
     }
 
     /**
@@ -161,6 +189,20 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public double getBalance(OfflinePlayer player) {
+        if (player.getName() == null) return 0;
+
+        EpicPlayer epicPlayer = EpicPlayer.get(player.getName());
+        if (epicPlayer.isLoaded() && epicPlayer.isOnline()) {
+            return epicPlayer.getBalance().doubleValue();
+        } else if (!epicPlayer.isLoaded() && !epicPlayer.isOnline()) {
+            try {
+                Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                return epicPlayer.getBalance().doubleValue();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         return 0;
     }
 
@@ -171,7 +213,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public double getBalance(String playerName, String world) {
-        return 0;
+        return getBalance(Bukkit.getOfflinePlayer(playerName), world);
     }
 
     /**
@@ -184,17 +226,17 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public double getBalance(OfflinePlayer player, String world) {
-        return 0;
+        return getBalance(player);
     }
 
     /**
-     * @param playerName
-     * @param amount
+     * @param playerName name of the player
+     * @param amount money to check
      * @deprecated As of VaultAPI 1.4 use {@link #has(OfflinePlayer, double)} instead.
      */
     @Override
     public boolean has(String playerName, double amount) {
-        return false;
+        return has(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     /**
@@ -206,7 +248,26 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public boolean has(OfflinePlayer player, double amount) {
-        return false;
+        if (player.getName() == null) return false;
+        // TODO UUID CHECK
+        BigDecimal bigDecimalAmount = BigDecimal.valueOf(amount);
+        BigDecimal playerBalance;
+
+        EpicPlayer epicPlayer = EpicPlayer.get(player.getName());
+        try {
+            if (epicPlayer.isLoaded()) {
+                playerBalance = epicPlayer.getBalance();
+            } else {
+                Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                playerBalance = epicPlayer.getBalance();
+
+                if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return (playerBalance.compareTo(bigDecimalAmount) >= 0);
     }
 
     /**
@@ -217,7 +278,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public boolean has(String playerName, String worldName, double amount) {
-        return false;
+        return has(Bukkit.getOfflinePlayer(playerName), worldName, amount);
     }
 
     /**
@@ -231,7 +292,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
-        return false;
+        return has(player, amount);
     }
 
     /**
@@ -241,7 +302,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        return null;
+        return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     /**
@@ -253,7 +314,25 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-        return null;
+        if (player.getName() == null) return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Unknown player name");
+        // TODO UUID CHECK
+
+        EpicPlayer epicPlayer = EpicPlayer.get(player.getName());
+        try {
+            if (epicPlayer.isLoaded()) {
+                epicPlayer.withdraw(amount);
+            } else {
+                Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                epicPlayer.withdraw(amount, true);
+
+                if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
+            }
+            return new EconomyResponse(amount, epicPlayer.getBalance().doubleValue(), EconomyResponse.ResponseType.SUCCESS, "");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Error while saving");
+        }
+        // return null;
     }
 
     /**
@@ -264,7 +343,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
-        return null;
+        return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), worldName, amount);
     }
 
     /**
@@ -278,7 +357,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
-        return null;
+        return withdrawPlayer(player, amount);
     }
 
     /**
@@ -288,7 +367,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        return null;
+        return depositPlayer(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     /**
@@ -300,7 +379,25 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-        return null;
+        if (player.getName() == null) return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Unknown player name");
+        // TODO UUID CHECK
+
+        EpicPlayer epicPlayer = EpicPlayer.get(player.getName());
+        try {
+            if (epicPlayer.isLoaded()) {
+                epicPlayer.deposit(amount);
+            } else {
+                Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
+                epicPlayer.deposit(amount, true);
+
+                if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
+            }
+            return new EconomyResponse(amount, epicPlayer.getBalance().doubleValue(), EconomyResponse.ResponseType.SUCCESS, "");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "Error while saving");
+        }
+        // return null;
     }
 
     /**
@@ -311,7 +408,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
-        return null;
+        return depositPlayer(Bukkit.getOfflinePlayer(playerName), worldName, amount);
     }
 
     /**
@@ -325,7 +422,7 @@ public class EconomyHolder implements Economy {
      */
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
-        return null;
+        return depositPlayer(player, amount);
     }
 
     /**

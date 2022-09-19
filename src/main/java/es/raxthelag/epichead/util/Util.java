@@ -20,6 +20,4 @@ public class Util {
     public static void removeTask(Player p) {
         Main.pendingTasks.remove(p.getName());
     }
-
-    public static boolean isOnlineAndCached()
 }

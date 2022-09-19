@@ -1,5 +1,6 @@
 package es.raxthelag.epichead.commands;
 
+import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import es.raxthelag.epichead.Main;
 import es.raxthelag.epichead.controllers.EpicPlayer;
@@ -8,6 +9,7 @@ import es.raxthelag.epichead.objects.tasks.HomeTask;
 import es.raxthelag.epichead.util.MessageUtil;
 import es.raxthelag.epichead.util.Util;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -15,11 +17,12 @@ import org.bukkit.scheduler.BukkitTask;
 
 @CommandAlias("home|h")
 @Description("EpicHead admin console command")
-public class HomeCommand {
+public class HomeCommand extends BaseCommand {
     @Subcommand("list")
     @Description("Get help about EpicHead admin command")
-    public void onHelp(Player player) {
-        MessageUtil.sendMessage(player, "general.help", null);
+    public void onList(Player player) {
+        // TODO LIST HOMES.. IF POSSIBLE WITH TAGS
+        // MessageUtil.sendMessage(player, "general.help", null);
     }
 
     @Default
@@ -33,7 +36,7 @@ public class HomeCommand {
         }
 
         EpicPlayer epicPlayer = EpicPlayer.get(player);
-        if (epicPlayer.areHomesLoaded()) {
+        if (!epicPlayer.areHomesLoaded()) {
             MessageUtil.sendMessage(player, "general.home.error-homes-not-loaded", "Ocurrió un error");
             return;
         }
@@ -52,6 +55,16 @@ public class HomeCommand {
             return;
         }
 
+        MessageUtil.sendMessage(
+                player,
+                "general.home.delay-start",
+                "No te muevas, serás teletransportado en <time> segundos",
+                TagResolver.resolver(
+                        Placeholder.unparsed("home", home.getName().toLowerCase()),
+                        Placeholder.unparsed("time", delay + "")
+                )
+        );
+
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
             if (player.isOnline()) {
                 MessageUtil.sendMessage(player, "general.home.tp-success", "<home_prefix> <green>Has sido teleportado hacia tu <i>home</i> <yellow><home></yellow>", Placeholder.unparsed("home", home.getName()));
@@ -68,9 +81,8 @@ public class HomeCommand {
     @CommandAlias("sethome")
     @CommandPermission("epichead.home.set")
     public void onNewHome(Player player, @Single String name) {
-        // TODO NEW HOME
         EpicPlayer epicPlayer = EpicPlayer.get(player);
-        if (epicPlayer.areHomesLoaded()) {
+        if (!epicPlayer.areHomesLoaded()) {
             MessageUtil.sendMessage(player, "general.home.error-homes-not-loaded", "Ocurrió un error");
             return;
         }
@@ -81,15 +93,34 @@ public class HomeCommand {
             return;
         }
 
+        Main.debug(player.getName() + " has " + maxHomes + " max homes allowed.");
+
         if (epicPlayer.getHomes().stream().anyMatch(h -> h.getName().equals(name))) {
             MessageUtil.sendMessage(player, "general.home.home-already-exists", "Ya tienes una casa con este nombre", Placeholder.unparsed("home", name.toLowerCase()));
             return;
         }
 
-        MessageUtil.sendMessage(player, "general.home.home-already-exists", "Ya tienes una casa con este nombre", Placeholder.unparsed("home", name.toLowerCase()));
+        MessageUtil.sendMessage(player, "general.home.home-set-success", "Hogar establecido", Placeholder.unparsed("home", name.toLowerCase()));
         epicPlayer.addHome(new Home(null, name, player.getLocation()));
+    }
 
+    @Subcommand("delete|del|remove")
+    @CommandAlias("delhome")
+    @CommandPermission("epiclol.home.del")
+    public void onRemoveHome(Player player, @Single String name) {
+        EpicPlayer epicPlayer = EpicPlayer.get(player);
+        if (!epicPlayer.areHomesLoaded()) {
+            MessageUtil.sendMessage(player, "general.home.error-homes-not-loaded", "Ocurrió un error");
+            return;
+        }
 
+        if (epicPlayer.getHomes().stream().noneMatch(h -> h.getName().equals(name))) {
+            MessageUtil.sendMessage(player, "general.home.home-no-exist", "No existe el hogar <home>", Placeholder.unparsed("home", name.toLowerCase()));
+            return;
+        }
+
+        MessageUtil.sendMessage(player, "general.home.home-del-success", "Hogar eliminado", Placeholder.unparsed("home", name.toLowerCase()));
+        epicPlayer.getHomes().removeIf(h -> h.getName().equals(name.toLowerCase()));
     }
 
     private int getMaxHomesAllowed(Player player) {
@@ -98,7 +129,6 @@ public class HomeCommand {
                 return Integer.parseInt(permission.getPermission().substring(permission.getPermission().lastIndexOf('.' + 1)));
             }
         }
-
         return -1;
     }
 }

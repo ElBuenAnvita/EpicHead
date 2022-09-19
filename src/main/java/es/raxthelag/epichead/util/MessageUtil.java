@@ -8,6 +8,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -63,25 +64,32 @@ public class MessageUtil {
      * @param path Message path in messages.yml
      * @param def Default message in case we can't find the message in path.
      */
-    public static void sendMessage(Player p, String path, String def) {
-        if (p == null) return;
+    public static void sendMessage(CommandSender sender, String path, String def) {
+        if (sender == null) return;
         Component component = getComponent(path, def);
         BaseComponent[] baseComponents = BungeeComponentSerializer.get().serialize(component);
         BaseComponent baseComponent = new TextComponent("");
         Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
 
-        p.spigot().sendMessage(baseComponent);
+        sender.spigot().sendMessage(baseComponent);
     }
 
-    public static void sendMessage(Player p, String path, String def, TagResolver... tagResolvers) {
-        if (p == null) return;
+    /**
+     * Sends a simple message to a command sender
+     * @param sender Command sender
+     * @param path Message path in messages.yml
+     * @param def Default message in case we can't find the message in path.
+     * @param tagResolvers Placeholders changed in the final message
+     */
+    public static void sendMessage(CommandSender sender, String path, String def, TagResolver... tagResolvers) {
+        if (sender == null) return;
         Component component = getComponent(path, def, tagResolvers);
 
         BaseComponent[] baseComponents = BungeeComponentSerializer.get().serialize(component);
         BaseComponent baseComponent = new TextComponent("");
         Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
 
-        p.spigot().sendMessage(baseComponent);
+        sender.spigot().sendMessage(baseComponent);
     }
 
     /* public static void sendMessage(Player p, String path, String def, TagResolver tagResolver) {
@@ -93,6 +101,7 @@ public class MessageUtil {
 
         p.spigot().sendMessage(baseComponent);
     } */
+
     public static void debug(String s, boolean force) {
         if (Main.getInstance().getConfig().getBoolean("debug", false) || force) {
             Main.getInstance().getLogger().info("[DEBUG] " + s);

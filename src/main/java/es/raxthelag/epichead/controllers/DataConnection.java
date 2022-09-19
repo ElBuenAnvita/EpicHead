@@ -4,12 +4,10 @@ import es.raxthelag.epichead.Main;
 import es.raxthelag.epichead.objects.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.*;
-import java.util.Optional;
 
 public class DataConnection {
     public String host;
@@ -21,17 +19,19 @@ public class DataConnection {
     private Connection connection;
 
     public void setupDatabaseData() {
-        host = Main.getInstance().getConfig().getString("MySQL.host");
-        port = Main.getInstance().getConfig().getInt("MySQL.port", 3306);
-        dbname = Main.getInstance().getConfig().getString("MySQL.db");
-        user = Main.getInstance().getConfig().getString("MySQL.user");
-        pass = Main.getInstance().getConfig().getString("MySQL.password");
+        host = Main.getInstance().getConfig().getString("database.mysql.host");
+        port = Main.getInstance().getConfig().getInt("database.mysql.port", 3306);
+        dbname = Main.getInstance().getConfig().getString("database.mysql.dbname");
+        user = Main.getInstance().getConfig().getString("database.mysql.user");
+        pass = Main.getInstance().getConfig().getString("database.mysql.password");
     }
 
     public DataConnection() {
-        setupDatabaseData();
+        // setupDatabaseData();
         try {
+            setupDatabaseData();
             connect();
+            createTables();
         } catch (SQLException | ClassNotFoundException | UnknownHostException throwables) {
             Bukkit.getLogger().severe("Could not connect to database...");
             throwables.printStackTrace();
@@ -57,8 +57,7 @@ public class DataConnection {
             }
         }
 
-        // We're going to create the tables just in case they don't exist.
-        createTables();
+        // createTables();
     }
 
     public Connection getConnection() throws SQLException {
@@ -73,6 +72,8 @@ public class DataConnection {
         int econDigits = Main.getInstance().getConfig().getInt("economy.max-digits-allowed", 13);
         int econFractionDigits = Main.getInstance().getConfig().getInt("economy.fraction-digits", 4);
 
+        Bukkit.getLogger().info("Trying to create tables in database with current custom eco info: " + econDigits + "," + econFractionDigits);
+
         /* statement.execute("CREATE TABLE IF NOT EXISTS `eh_player` (" +
                 "  `id` INT NOT NULL AUTO_INCREMENT," +
                 "  `name` VARCHAR(25) NOT NULL," +
@@ -82,13 +83,13 @@ public class DataConnection {
                 "  PRIMARY KEY (`id`)," +
                 "  UNIQUE INDEX `name_UNIQUE` (`name` ASC));"); */
 
-        statement.execute("CREATE TABLE `eh_player` (" +
+        statement.execute("CREATE TABLE IF NOT EXISTS `eh_player` (" +
                 "  `id` int(11) NOT NULL AUTO_INCREMENT," +
                 "  `name` varchar(25) NOT NULL," +
                 "  `realname` varchar(25) NOT NULL," +
                 "  `uuid` varchar(64) DEFAULT NULL," +
                 // "  `balance` decimal(" + econDigits + "," + econFractionDigits + ") NOT NULL DEFAULT 0.0000," +
-                String.format("  `balance` decimal(%2d,%2d) NOT NULL DEFAULT 0.0000,", econDigits, econFractionDigits) +
+                String.format("  `balance` decimal(%2d,%2d) NOT NULL DEFAULT 0,", econDigits, econFractionDigits) +
                 "  `world` varchar(255) DEFAULT NULL," +
                 "  `x` double DEFAULT NULL," +
                 "  `y` double DEFAULT NULL," +
@@ -104,7 +105,7 @@ public class DataConnection {
                 "  PRIMARY KEY (`id`)," +
                 "  UNIQUE INDEX `name_UNIQUE` (`name`))");
 
-        statement.execute("CREATE TABLE `eh_home` (" +
+        statement.execute("CREATE TABLE IF NOT EXISTS `eh_home` (" +
                 "  `id` INT NOT NULL AUTO_INCREMENT," +
                 "  `playerId` INT NOT NULL," +
                 "  `name` VARCHAR(45) NOT NULL," +
@@ -121,8 +122,6 @@ public class DataConnection {
                 "    REFERENCES `eh_player` (`id`)" +
                 "    ON DELETE NO ACTION" +
                 "    ON UPDATE NO ACTION);");
-
-        // TODO CREATE TRANSACTION TABLE
     }
 
     public boolean playerExistInDatabase(EpicPlayer player) throws SQLException {
@@ -160,6 +159,10 @@ public class DataConnection {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet != null && resultSet.next()) {
                 player.setBalance(resultSet.getBigDecimal("balance"));
+                if (resultSet.getString("world") != null)
+                    player.setLastSeenLocation(new Location(Bukkit.getWorld(resultSet.getString("world")), resultSet.getDouble("x"), resultSet.getDouble("y"), resultSet.getDouble("z"), resultSet.getFloat("yaw"), resultSet.getFloat("pitch")));
+                if (resultSet.getString("dl_world") != null)
+                    player.setDeathLocation(new Location(Bukkit.getWorld(resultSet.getString("dl_world")), resultSet.getDouble("dl_x"), resultSet.getDouble("dl_y"), resultSet.getDouble("dl_z"), resultSet.getFloat("dl_yaw"), resultSet.getFloat("dl_pitch")));
                 player.setLoaded(true);
             }
         } finally {

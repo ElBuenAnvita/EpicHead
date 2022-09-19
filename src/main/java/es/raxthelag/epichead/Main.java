@@ -4,10 +4,7 @@ import co.aikar.commands.PaperCommandManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import es.raxthelag.epichead.commands.EpicHeadCommand;
-import es.raxthelag.epichead.commands.SpawnCommand;
-import es.raxthelag.epichead.commands.TpaCommand;
-import es.raxthelag.epichead.commands.WarpCommand;
+import es.raxthelag.epichead.commands.*;
 import es.raxthelag.epichead.controllers.DataConnection;
 import es.raxthelag.epichead.controllers.EconomyHolder;
 import es.raxthelag.epichead.controllers.EpicPlayer;
@@ -24,21 +21,16 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -50,9 +42,10 @@ public final class Main extends JavaPlugin {
     //                          Target, Task
     public static final HashMap<String, Task> pendingTasks = new HashMap<>();
     //                        Target, Map<Player, TPAType>
-    public static Cache<String, Map<String, TpaType>> pendingTpas = null;
+    public static Cache<String, Map.Entry<String, TpaType>> pendingTpas = null;
 
     private YamlConfiguration messagesConfig;
+    private YamlConfiguration locationsConfig;
     private PaperCommandManager commandManager;
     private DataConnection dataConnection;
     private Economy economy;
@@ -61,14 +54,14 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // Since Vault is already a dependency, then we will just registrate our Economy class.
-        economy = new EconomyHolder();
-        getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.High);
-
         // Plugin startup logic
         this.saveDefaultsConfig();
         this.loadConfigInUTF();
         this.loadMessagesInUTF();
+
+        // Since Vault is already a dependency, then we will just registrate our Economy class.
+        economy = new EconomyHolder();
+        getServer().getServicesManager().register(Economy.class, economy, this, ServicePriority.High);
 
         this.loadCustomTags(true);
         this.loadCaches();
@@ -83,11 +76,23 @@ public final class Main extends JavaPlugin {
         commandManager.registerCommand(new SpawnCommand());
         commandManager.registerCommand(new TpaCommand());
         commandManager.registerCommand(new WarpCommand());
+        commandManager.registerCommand(new HomeCommand());
+        commandManager.registerCommand(new EconCommands());
+        commandManager.registerCommand(new BackCommand());
 
         this.loadCommandCompletions();
-        this.dataConnection = new DataConnection();
 
-        Bukkit.getScheduler().runTaskLater(this, this::loadWarps, 1L);
+        try {
+            this.dataConnection = new DataConnection();
+        } catch (Exception e) {
+            this.getPluginLoader().disablePlugin(this);
+        }
+
+        // Load warps and spawn when worlds are loaded already.
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            this.loadLocationsInUTF();
+            this.loadWarps();
+        }, 1L);
     }
 
     @Override
@@ -101,6 +106,14 @@ public final class Main extends JavaPlugin {
         if (!file.exists()) {
             this.saveResource("messages.yml", false);
             // try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
+        }
+        File locationsFile = new File(this.getDataFolder(), "locations.yml");
+        if (!locationsFile.exists()) {
+            this.saveResource("locations.yml", false);
+        }
+        File acfMessagesFile = new File(this.getDataFolder(), "acf-messages.yml");
+        if (!acfMessagesFile.exists()) {
+            this.saveResource("acf-messages.yml", false);
         }
     }
 
@@ -125,6 +138,19 @@ public final class Main extends JavaPlugin {
             this.messagesConfig.load(reader);
         } catch (Exception e) {
             this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load messages! Error in parsing messages!");
+            e.printStackTrace();
+        }
+    }
+
+    public void loadLocationsInUTF() {
+        File file = new File(this.getDataFolder(), "locations.yml");
+        this.locationsConfig = new YamlConfiguration();
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            this.locationsConfig.load(reader);
+        } catch (Exception e) {
+            this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load locations! Error in parsing locations!");
             e.printStackTrace();
         }
     }
@@ -156,7 +182,8 @@ public final class Main extends JavaPlugin {
     }
 
     public void loadWarps() {
-        ConfigurationSection section = getConfig().getConfigurationSection("warps");
+        // ConfigurationSection section = getConfig().getConfigurationSection("warps");
+        ConfigurationSection section = getLocations().getConfigurationSection("warps");
         if (section == null) return;
 
         for (String key : section.getKeys(true)) {
@@ -177,14 +204,31 @@ public final class Main extends JavaPlugin {
             }
             return ImmutableList.of();
         });
+
+        try {
+            Locale esLocale = new Locale("es");
+            commandManager.addSupportedLanguage(esLocale);
+            commandManager.getLocales().loadYamlLanguageFile("acf-messages.yml", esLocale);
+            commandManager.getLocales().setDefaultLocale(esLocale);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveWarps(boolean forceConfigSave) {
         HashMap<String, Warp> section = new HashMap<>();
         warps.forEach(w -> section.put(w.getName(),w));
 
-        getConfig().createSection("warps", section);
-        if (forceConfigSave) saveConfig();
+        getLocations().createSection("warps", section);
+        // if (forceConfigSave) saveConfig();
+        if (forceConfigSave) {
+            File file = new File(this.getDataFolder(), "locations.yml");
+            try {
+                getLocations().save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         /* ConfigurationSection section = getConfig().getConfigurationSection("warps");
         if (section == null) throw new Exception("Section is null");
@@ -193,8 +237,16 @@ public final class Main extends JavaPlugin {
         if (forceConfigSave) saveConfig(); */
     }
 
+    public void saveLocations() {
+        saveWarps(true);
+    }
+
     public FileConfiguration getMessages() {
         return this.messagesConfig;
+    }
+
+    public FileConfiguration getLocations() {
+        return this.locationsConfig;
     }
 
     public Economy getEconomy() { return economy; }

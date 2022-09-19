@@ -2,6 +2,7 @@ package es.raxthelag.epichead.controllers;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import es.raxthelag.epichead.Main;
 import es.raxthelag.epichead.objects.Home;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +39,7 @@ public class EpicPlayer {
         this.player = null;
         this.name = s.toLowerCase();
         this.playerName = s;
+        this.balance = BigDecimal.ZERO;
 
         players.put(this.name, this);
     }
@@ -44,6 +48,7 @@ public class EpicPlayer {
         this.player = p;
         this.name = p.getName().toLowerCase();
         this.playerName = p.getName();
+        this.balance = BigDecimal.ZERO;
 
         players.put(this.name, this);
     }
@@ -72,6 +77,10 @@ public class EpicPlayer {
     @Nullable
     public UUID getUniqueId() { return uniqueId; }
 
+    /**
+     * Set both player object and UniqueId (UUID) from it in the EpicPlayer
+     * @param player Player that corresponds to this EpicPlayer.
+     */
     public void setPlayer(Player player) {
         this.player = player;
         this.uniqueId = player.getUniqueId();
@@ -153,5 +162,41 @@ public class EpicPlayer {
         if (p == null) return false;
 
         return p.isOnline();
+    }
+
+    public void deposit(double amount) throws SQLException {
+        BigDecimal df = BigDecimal.valueOf(amount);
+        this.balance = balance.add(df).setScale(Main.getInstance().getEconomy().fractionalDigits(), RoundingMode.HALF_EVEN);
+
+        if (Main.getInstance().getConfig().getBoolean("performance.save-db-player-every-transaction", false)) {
+            Main.getInstance().getDataConnection().savePlayer(this);
+        }
+    }
+
+    public void deposit(double amount, boolean forceSave) throws SQLException {
+        BigDecimal df = BigDecimal.valueOf(amount);
+        this.balance = balance.add(df).setScale(Main.getInstance().getEconomy().fractionalDigits(), RoundingMode.HALF_EVEN);
+
+        if (forceSave || Main.getInstance().getConfig().getBoolean("performance.save-db-player-every-transaction", false)) {
+            Main.getInstance().getDataConnection().savePlayer(this);
+        }
+    }
+
+    public void withdraw(double amount) throws SQLException {
+        BigDecimal df = BigDecimal.valueOf(amount);
+        this.balance = balance.subtract(df).setScale(Main.getInstance().getEconomy().fractionalDigits(), RoundingMode.HALF_EVEN);
+
+        if (Main.getInstance().getConfig().getBoolean("performance.save-db-player-every-transaction", false)) {
+            Main.getInstance().getDataConnection().savePlayer(this);
+        }
+    }
+
+    public void withdraw(double amount, boolean forceSave) throws SQLException {
+        BigDecimal df = BigDecimal.valueOf(amount);
+        this.balance = balance.subtract(df).setScale(Main.getInstance().getEconomy().fractionalDigits(), RoundingMode.HALF_EVEN);
+
+        if (forceSave || Main.getInstance().getConfig().getBoolean("performance.save-db-player-every-transaction", false)) {
+            Main.getInstance().getDataConnection().savePlayer(this);
+        }
     }
 }

@@ -7,6 +7,8 @@ custom-tags:
   'tpa_prefix': "<bold><aqua>TPA</aqua></bold> <dark_gray>»</dark_gray>"
   'warp_prefix': "<bold><red>WARP</red></bold> <dark_gray>»</dark_gray>"
   'home_prefix': "<bold><yellow>HOME</yellow></bold> <dark_gray>»</dark_gray>"
+  'eco_prefix': "<bold><dark_green>ECO</dark_green></bold> <dark_gray>»</dark_gray>"
+  'back_prefix': "<bold><dark_red>BACK</dark_red></bold> <dark_gray>»</dark_gray>"
 
 general:
   not-permission: "<prefix> Lo siento, no tienes los permisos suficientes"
@@ -28,7 +30,14 @@ general:
     tp-success: "<spawn_prefix> <green>Has sido teletransportado al spawn"
     tp-failed: "<spawn_prefix> <red>Ocurrió un error al llevarte al spawn"
   tpa:
-    tpa-no-player-specified: "<tpa_prefix> <red>No especificaste ningún usuario"
+    player-got-offline: "<tpa_prefix> <red>El jugador <yellow><player></yellow> se desconectó"
+    no-tpa-to-accept: "<tpa_prefix> <red>No tienes ninguna petición de TPA pendiente"
+    no-tpa-to-deny: "<tpa_prefix> <red>No tienes ninguna petición de TPA pendiente"
+    no-pending-tpa: "<tpa_prefix> <red>No tienes ninguna petición pendiente o se han expirado."
+    request-denied: "<tpa_prefix> <yellow><player></yellow> <red>ha denegado tu solicitud de teletransporte.</red>"
+    denied-success: "<tpa_prefix> <green>Has negado la solicitud de <yellow><player></yellow>.</green>"
+
+    tpa-no-player-specified: "<tpa_prefix> <red>No especificaste ningún jugador"
     tpa-player-not-found: "<tpa_prefix> <red>No encontré al jugador <yellow><target>"
     tpa-self: "<tpa_prefix> <i>Suena filosófico, pero no puedes teletransportarte hacia ti mismo"
     tpa-sent: "<tpa_prefix> <green>Has enviado una petición de transporte hacia <yellow><target>"
@@ -38,31 +47,69 @@ general:
       - ""
       - "<b>   <green><click:run_command:'/tpaccept'><hover:show_text:'<green>Aceptar la petición'>[Aceptar]</hover></click></green>      <red><click:run_command:'/tpadeny'><hover:show_text:'<red>Denegar la petición'>[Denegar]</hover></click></red></b>"
       - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
-    no-tpa-to-accept: "<tpa_prefix> <red>No tienes ninguna petición de TPA pendiente... o se han expirado."
-    no-pending-tpa: "<tpa_prefix> <red>No tienes ninguna petición pendiente o se han expirado."
-    player-got-offline: "<tpa_prefix> <red>El jugador <yellow><player></yellow> se desconectó"
     tpa-accepted-caller: "<tpa_prefix> <yellow><player></yellow><green> aceptó tu solicitud.</green> <yellow>Serás teleportado en <red><time> segundos</red>, ¡no te muevas!</yellow>"
-    tp-success-target: "<tpa_prefix> <yellow><player></yellow> <green> se ha teleportado hacia ti"
-    tp-success: "<tpa_prefix> <green>Te has teleportado hacia <yellow><player></yellow>"
+    tpa-accepted-target: "<tpa_prefix> <green>Has aceptado la solicitud de teletransporte de <yellow><player></yellow>. Se teletransportará hacia ti en <yellow><time> segundos</yellow></green>"
+    tpa-success-caller: "<tpa_prefix> <green>Te has teleportado hacia <yellow><player></yellow>"
+    tpa-success-target: "<tpa_prefix> <yellow><player></yellow> <green> se ha teleportado hacia ti"
+
+    tpahere-no-player-specified: "<tpa_prefix> <red>No especificaste ningún jugador"
+    tpahere-player-not-found: "<tpa_prefix> <red>No encontré al jugador <yellow><target>"
+    tpahere-self: "<tpa_prefix> <i>¿Te ibas a pedir a ti mismo teletransportarte hacia aquí? Ya estás aquí."
+    tpahere-sent: "<tpa_prefix> <green>Has enviado a <yellow><target></yellow> una petición de teletransporte hacia ti</green>"
+    tpahere-received:
+        - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
+        - "<aqua><player></aqua> quiere que te teletransportes hacia donde está <aqua><player></aqua>"
+        - ""
+        - "<b>   <green><click:run_command:'/tpaccept'><hover:show_text:'<green>Aceptar la petición'>[Aceptar]</hover></click></green>      <red><click:run_command:'/tpadeny'><hover:show_text:'<red>Denegar la petición'>[Denegar]</hover></click></red></b>"
+        - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
+    tpahere-accepted-caller:
+      - "<tpa_prefix> <yellow><player></yellow><green> aceptó tu solicitud.</green>"
+      # - "<tpa_prefix> <green>Se teletransportará hacia ti en <yellow><time> segundos</yellow></green>"
+    tpahere-accepted-target:
+      - "<tpa_prefix> <green>Has aceptado la solicitud de teletransporte de <yellow><player></yellow></green>"
+      - "<tpa_prefix> <gold>Serás teletransportado en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
+    tpahere-success-caller: "<tpa_prefix> <yellow><player></yellow> <green>se ha teleportado hacia ti"
+    tpahere-success-target: "<tpa_prefix> <green>Te has teleportado hacia <yellow><player></yellow>"
+
     canceled-by-movement: "<tpa_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+
+    request-canceled: "<tpa_prefix> <red>La petición de teletransporte ha sido cancelada</red>"
   warp:
     warp-exist: "<warp_prefix> <red>Ya existe una warp con nombre <yellow><warp></yellow>.</red>"
     warp-no-exist: "<warp_prefix> <red>La warp <yellow><warp></yellow> no existe.</red>"
     warp-add-success: "<warp_prefix> <green>Se ha creado la warp <yellow><warp></yellow> exitosamente.</green>"
     warp-rel-success: "<warp_prefix> <green>Se ha reubicado la warp <yellow><warp></yellow> exitosamente.</green>"
     warp-del-success: "<warp_prefix> <green>Se ha eliminado la warp <yellow><warp></yellow> exitosamente.</green>"
-    delay-start: "<warp_prefix> Serás enviado a <warp_display> en <yellow><time> segundos</yellow>, ¡no te muevas!"
+    delay-start: "<warp_prefix> Serás enviado a <warp_display><r> en <yellow><time> segundos</yellow>, ¡no te muevas!"
     canceled-by-movement: "<warp_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
     generic-tp-success: "<warp_prefix> <green>Has sido teletransportado hacia <yellow><warp_display></yellow><green>."
   home:
     error-homes-not-loaded: "<home_prefix> <red>Ocurrió un error al intentar obtener tus hogares. Por favor vuelve a intentarlo más tarde</red>"
     home-no-exist: "<home_prefix> <red>No tienes ningún hogar llamado <yellow><home></yellow>.</red>"
-    tp-success: "<home_prefix> <green>Has sido teleportado hacia tu hogar <yellow><home></yellow>."
+    delay-start: "<home_prefix> <gold>Serás enviado a <yellow><home></yellow> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
+    tp-success: "<home_prefix> <green>Has sido teletransportado hacia tu hogar <yellow><home></yellow>."
     max-homes-reached: "<home_prefix> <red>Lo siento, has alcanzado el límite de hogares que puedes tener."
     home-already-exists: "<home_prefix> <red>Ya tienes una casa con este nombre. Selecciona otro.</red>"
     home-set-success: "<home_prefix> <green>Hogar <yellow><home></yellow> establecido."
     home-del-success: "<home_prefix> <gray>El hogar <yellow><home></yellow> ha sido eliminado."
-
+    canceled-by-movement: "<home_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+  eco:
+    current-balance: "<eco_prefix> Tu balance actual es de <green><balance_format></green>."
+    current-balance-other: "<eco_prefix> El balance de <red><player></red> es de <yellow>$<balance_format></yellow>."
+    error-bal: "<eco_prefix> <red>Ocurrió un error al intentar obtener el balance de <yellow><player></yellow>.</red>"
+    error-player-offline-and-inexistent: "<eco_prefix> <yellow><player></yellow><red> nunca ha entrado a jugar.</red>"
+    error-generic:
+      - "<eco_prefix> <red>Ocurrió un error interno al intentar hacer esto</red>"
+      - "<red>Por favor revise la consola para más información sobre este error</red>"
+    pay-player-offline: "<eco_prefix> <yellow><player></yellow> <red>no está en línea.</red>"
+    pay-sent: "<eco_prefix> <green>Has enviado satisfactoriamente <yellow><amount_format></yellow> a <yellow><player></yellow>.</green>"
+    pay-receive: "<eco_prefix> <green>Has recibido un pago de <yellow><player></yellow> por un importe de <yellow><amount_format></yellow>.</green>"
+    pay-no-minimum-satisfied: "<eco_prefix> <red>El monto mínimo para una transacción es de <yellow><min_amount_format></yellow>.</red>"
+  back:
+    tp-success: "<back_prefix> <green>Has sido teletransportado hacia tu último lecho de muerte."
+    delay-start: "<back_prefix> <gold>Serás enviado hacia tu último <red>lecho de muerte</red> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
+    no-location-saved: "<back_prefix> <red>Lo siento, no hemos podido localizar tu último lecho de muerte</red>"
+    canceled-by-movement: "<back_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
 
 error:
   generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."

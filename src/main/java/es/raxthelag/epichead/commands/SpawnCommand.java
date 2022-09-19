@@ -25,7 +25,7 @@ public class SpawnCommand extends BaseCommand {
             return;
         }
 
-        Location spawn = Main.getInstance().getConfig().getLocation("spawn.location");
+        Location spawn = Main.getInstance().getLocations().getLocation("spawn");
         int delay = Main.getInstance().getConfig().getInt("times.spawn.teleport-delay", 0);
 
         if (spawn == null) {
