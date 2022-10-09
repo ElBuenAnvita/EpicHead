@@ -8,25 +8,29 @@ import es.raxthelag.epichead.commands.*;
 import es.raxthelag.epichead.controllers.DataConnection;
 import es.raxthelag.epichead.controllers.EconomyHolder;
 import es.raxthelag.epichead.controllers.EpicPlayer;
+import es.raxthelag.epichead.controllers.KitHandler;
 import es.raxthelag.epichead.listeners.PlayerListener;
-import es.raxthelag.epichead.objects.Home;
-import es.raxthelag.epichead.objects.Task;
-import es.raxthelag.epichead.objects.TpaType;
-import es.raxthelag.epichead.objects.Warp;
+import es.raxthelag.epichead.objects.*;
 import es.raxthelag.epichead.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import team.unnamed.gui.menu.listener.InventoryClickListener;
+import team.unnamed.gui.menu.listener.InventoryCloseListener;
+import team.unnamed.gui.menu.listener.InventoryOpenListener;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -46,18 +50,25 @@ public final class Main extends JavaPlugin {
 
     private YamlConfiguration messagesConfig;
     private YamlConfiguration locationsConfig;
+    private YamlConfiguration kitsConfig;
+
     private PaperCommandManager commandManager;
     private DataConnection dataConnection;
     private Economy economy;
+    private Permission permission;
+    private KitHandler kitHandler;
 
     @Override
     public void onEnable() {
         instance = this;
 
+        registerConfigurationClasses();
+
         // Plugin startup logic
         this.saveDefaultsConfig();
         this.loadConfigInUTF();
         this.loadMessagesInUTF();
+        this.loadKitsInUTF();
 
         // Since Vault is already a dependency, then we will just registrate our Economy class.
         economy = new EconomyHolder();
@@ -68,6 +79,9 @@ public final class Main extends JavaPlugin {
 
         // EventHandlers
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InventoryOpenListener(), this);
+        Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(this), this);
 
         // Commands
         commandManager = new PaperCommandManager(this);
@@ -79,6 +93,7 @@ public final class Main extends JavaPlugin {
         commandManager.registerCommand(new HomeCommand());
         commandManager.registerCommand(new EconCommands());
         commandManager.registerCommand(new BackCommand());
+        commandManager.registerCommand(new KitCommand());
 
         this.loadCommandCompletions();
 
@@ -90,6 +105,8 @@ public final class Main extends JavaPlugin {
 
         // Load warps and spawn when worlds are loaded already.
         Bukkit.getScheduler().runTaskLater(this, () -> {
+            // TODO
+            this.loadPermissionHolder();
             this.loadLocationsInUTF();
             this.loadWarps();
         }, 1L);
@@ -114,6 +131,10 @@ public final class Main extends JavaPlugin {
         File acfMessagesFile = new File(this.getDataFolder(), "acf-messages.yml");
         if (!acfMessagesFile.exists()) {
             this.saveResource("acf-messages.yml", false);
+        }
+        File kitsFile = new File(this.getDataFolder(), "kits.yml");
+        if (!kitsFile.exists()) {
+            this.saveResource("kits.yml", false);
         }
     }
 
@@ -153,6 +174,21 @@ public final class Main extends JavaPlugin {
             this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load locations! Error in parsing locations!");
             e.printStackTrace();
         }
+    }
+
+    public void loadKitsInUTF() {
+        File file = new File(this.getDataFolder(), "kits.yml");
+        this.kitsConfig = new YamlConfiguration();
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            this.kitsConfig.load(reader);
+        } catch (Exception e) {
+            this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load kits.yml! Error in parsing messages!");
+            e.printStackTrace();
+        }
+
+        this.kitHandler = new KitHandler();
     }
 
     public void loadCustomTags(boolean setNewMiniMessage) {
@@ -205,6 +241,8 @@ public final class Main extends JavaPlugin {
             return ImmutableList.of();
         });
 
+        commandManager.getCommandCompletions().registerCompletion("kits", c -> getKitHandler().getKitsNames());
+
         try {
             Locale esLocale = new Locale("es");
             commandManager.addSupportedLanguage(esLocale);
@@ -212,6 +250,15 @@ public final class Main extends JavaPlugin {
             commandManager.getLocales().setDefaultLocale(esLocale);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void loadPermissionHolder() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        if (rsp != null) {
+            permission = rsp.getProvider();
+        } else {
+            this.getPluginLoader().disablePlugin(this);
         }
     }
 
@@ -237,6 +284,10 @@ public final class Main extends JavaPlugin {
         if (forceConfigSave) saveConfig(); */
     }
 
+    private void registerConfigurationClasses() {
+        ConfigurationSerialization.registerClass(Kit.class, "Kit");
+    }
+
     public void saveLocations() {
         saveWarps(true);
     }
@@ -249,7 +300,11 @@ public final class Main extends JavaPlugin {
         return this.locationsConfig;
     }
 
+    public FileConfiguration getKits() { return this.kitsConfig; }
+
     public Economy getEconomy() { return economy; }
+    public Permission getPermission() { return permission; }
+    public KitHandler getKitHandler() { return kitHandler; }
 
     public static Main getInstance() {
         return instance;

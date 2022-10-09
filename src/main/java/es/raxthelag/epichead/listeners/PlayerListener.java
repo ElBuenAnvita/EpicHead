@@ -54,10 +54,20 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
-        if (e.getTo() == null) return;
+        Location movedFrom = e.getFrom();
+        Location movedTo = e.getTo();
+
+        // If, by any reason, movedTo is null, we won't count it as a real movement.
+        if (movedTo == null) return;
+
+        if (!(movedFrom.getBlockX() != movedTo.getBlockX()
+                || movedFrom.getBlockY() != movedTo.getBlockY()
+                || movedFrom.getBlockZ() != movedTo.getBlockZ()
+        )) return;
+
         // if (!(e.getFrom().getZ() != e.getTo().getZ() && e.getFrom().getX() != e.getTo().getX())) return;
-        if (e.getFrom().getBlockZ() != e.getTo().getBlockZ() && e.getFrom().getBlockX() != e.getTo().getBlockX()) return;
-        // TODO LESS PRECISE MOVEMENT
+        /* if (e.getFrom().getBlockZ() != e.getTo().getBlockZ() &&
+                e.getFrom().getBlockX() != e.getTo().getBlockX()) return; */
 
         Player p = e.getPlayer();
         if (!Util.isPlayerTasked(p)) return;

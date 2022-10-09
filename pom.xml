@@ -6,13 +6,13 @@
 
     <groupId>es.raxthelag</groupId>
     <artifactId>epichead</artifactId>
-    <version>0.9-ALPHA-1.a</version>
+    <version>0.9-ALPHA-gui.ta.9</version>
     <packaging>jar</packaging>
 
     <name>EpicHead</name>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <url>https://anvico.club/</url>
@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.4.0</version>
                 <!-- custom -->
                 <configuration>
                     <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
@@ -92,6 +92,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>unnamed-public</id>
+            <url>https://repo.unnamed.team/repository/unnamed-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -126,6 +130,22 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- <dependency>
+            <groupId>team.unnamed</groupId>
+            <artifactId>gui-menu-api</artifactId>
+            <version>3.3.1</version>
+        </dependency> -->
+        <dependency>
+            <groupId>team.unnamed</groupId>
+            <artifactId>gui-item-api</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>team.unnamed</groupId>
+            <artifactId>gui-menu-adapt-v1_18_R2</artifactId>
+            <version>3.3.1</version>
+            <classifier>dev</classifier>
         </dependency>
     </dependencies>
 </project>
