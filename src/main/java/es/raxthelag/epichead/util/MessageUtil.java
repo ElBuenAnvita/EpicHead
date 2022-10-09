@@ -2,7 +2,6 @@ package es.raxthelag.epichead.util;
 
 import es.raxthelag.epichead.Main;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -60,7 +59,7 @@ public class MessageUtil {
 
     /**
      * Sends a simple message to player
-     * @param p Player
+     * @param sender Player
      * @param path Message path in messages.yml
      * @param def Default message in case we can't find the message in path.
      */
@@ -106,5 +105,18 @@ public class MessageUtil {
         if (Main.getInstance().getConfig().getBoolean("debug", false) || force) {
             Main.getInstance().getLogger().info("[DEBUG] " + s);
         }
+    }
+
+    public static void sendExceptionMessage(CommandSender sender, Exception e) {
+        if (sender == null) return;
+        if (!e.getMessage().startsWith("yml-")) return;
+        String path = e.getMessage().substring(4);
+
+        Component component = getComponent(path, "");
+        BaseComponent[] baseComponents = BungeeComponentSerializer.get().serialize(component);
+        BaseComponent baseComponent = new TextComponent("");
+        Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
+
+        sender.spigot().sendMessage(baseComponent);
     }
 }

@@ -20,6 +20,7 @@ general:
     - - "<aqua><click:suggest_command:'/eh warp rel '>/eh warp rel <warp> </click><light_purple>- <yellow>Reubicar un warp"
     - "<aqua><click:suggest_command:'/eh setspawn '>/eh setspawn</click><light_purple>- <yellow>Establece el spawn"
     - "<aqua><click:suggest_command:'/eh reload'>/eh reload </click><light_purple>- <yellow>Recargar los YML"
+    - ""
   reload:
     success: "<prefix> <green>Se ha recargado el plugin con éxito</green>"
     failed: "<prefix> <red>Ocurrió un error al recargar el plugin. Revisa la consola</red>"
@@ -110,6 +111,11 @@ general:
     delay-start: "<back_prefix> <gold>Serás enviado hacia tu último <red>lecho de muerte</red> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
     no-location-saved: "<back_prefix> <red>Lo siento, no hemos podido localizar tu último lecho de muerte</red>"
     canceled-by-movement: "<back_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
+  kit:
+    not-found: "<kit_prefix> <red>Ese kit no existe</red>"
+    not-found-name: "<kit_prefix> <red>El kit <yellow><kit></yellow> no existe</red>"
+
+
 
 error:
   generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
