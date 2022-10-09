@@ -18,6 +18,7 @@ import team.unnamed.gui.menu.item.ItemClickable;
 import team.unnamed.gui.menu.type.MenuInventory;
 import team.unnamed.gui.menu.type.MenuInventoryBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CommandAlias("kit")
@@ -28,7 +29,7 @@ public class KitCommand extends BaseCommand {
 
         int i = 0;
         for (Kit kit : Main.getInstance().getKitHandler().getKits()) {
-            List<String> description = kit.getDescription();
+            List<String> description = (kit.getDescription() == null) ? null : new ArrayList<>(kit.getDescription());
             if (description != null) description.replaceAll(s -> LegacyComponentSerializer.legacySection().serialize(MessageUtil.getComponent(s)));
 
             ItemStack itemStack = new ItemStack(kit.getGuiItem(), 1);

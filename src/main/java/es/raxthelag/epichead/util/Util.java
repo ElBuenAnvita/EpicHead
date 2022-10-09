@@ -35,7 +35,7 @@ public class Util {
         for (PermissionAttachmentInfo perm : player.getEffectivePermissions()) {
             if (perm.getPermission().startsWith(permission + ".") && perm.getValue()) {
                 // return Integer.parseInt(perm.getPermission().substring(perm.getPermission().lastIndexOf('.' + 1)));
-                return perm.getPermission().substring(perm.getPermission().lastIndexOf('.' + 1));
+                return perm.getPermission().substring(perm.getPermission().lastIndexOf('.') + 1);
             }
         }
         return null;

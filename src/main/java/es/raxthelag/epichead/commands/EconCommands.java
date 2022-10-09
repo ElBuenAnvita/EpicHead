@@ -8,6 +8,7 @@ import es.raxthelag.epichead.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -38,12 +39,13 @@ public class EconCommands extends BaseCommand {
         // @CommandAlias("balance|bal|oro|money")
         @CommandPermission("epiclol.balance.other")
         @CommandCompletion("@players")
-        public void onOtherBalance(Player p, @Optional @Single String player) {
+        public void onOtherBalance(CommandSender sender, @Optional @Single String player) {
             if (player == null) {
-                BigDecimal plBalance = getOwnBalance(p);
+                if (!(sender instanceof Player)) return;
+                BigDecimal plBalance = getOwnBalance((Player) sender);
 
                 MessageUtil.sendMessage(
-                        p,
+                        sender,
                         "general.eco.current-balance",
                         "Tu balance es de <balance>",
                         TagResolver.resolver(
@@ -64,7 +66,7 @@ public class EconCommands extends BaseCommand {
                     } catch (SQLException e) {
                         e.printStackTrace();
                         MessageUtil.sendMessage(
-                                p,
+                                sender,
                                 "general.eco.error-bal",
                                 "Ocurrió un error",
                                 Placeholder.unparsed("player", player)
@@ -76,7 +78,7 @@ public class EconCommands extends BaseCommand {
                 if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
 
                 MessageUtil.sendMessage(
-                        p,
+                        sender,
                         "general.eco.current-balance-other",
                         "El balance de <player> es de <balance>",
                         TagResolver.resolver(
