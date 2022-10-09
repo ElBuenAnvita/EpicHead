@@ -45,6 +45,7 @@ public class Kit implements ConfigurationSerializable {
         this.price = new BigDecimal(deserialize.get("price").toString());
         if (deserialize.get("item-list") != null) this.itemList = (List<ItemStack>) deserialize.get("item-list");
         if (deserialize.get("command-list") != null) this.commandList = (List<String>) deserialize.get("command-list");
+        if (deserialize.get("description") != null) this.description = (List<String>) deserialize.get("description");
     }
 
     /**
@@ -61,6 +62,7 @@ public class Kit implements ConfigurationSerializable {
         HashMap<String, Object> kit = new HashMap<>();
 
         kit.put("name", this.name);
+        kit.put("description", this.description);
         kit.put("display-name", this.name);
         kit.put("gui-material", this.guiItem.toString());
         kit.put("delay", this.delay+"");

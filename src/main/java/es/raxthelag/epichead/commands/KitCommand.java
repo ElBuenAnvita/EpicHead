@@ -29,7 +29,7 @@ public class KitCommand extends BaseCommand {
         int i = 0;
         for (Kit kit : Main.getInstance().getKitHandler().getKits()) {
             List<String> description = kit.getDescription();
-            description.replaceAll(s -> LegacyComponentSerializer.legacySection().serialize(MessageUtil.getComponent(s)));
+            if (description != null) description.replaceAll(s -> LegacyComponentSerializer.legacySection().serialize(MessageUtil.getComponent(s)));
 
             ItemStack itemStack = new ItemStack(kit.getGuiItem(), 1);
 
@@ -37,7 +37,7 @@ public class KitCommand extends BaseCommand {
             // if (itemMeta != null) itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', kit.getDisplayName()));
             if (itemMeta != null) {
                 itemMeta.setDisplayName(LegacyComponentSerializer.legacySection().serialize(MessageUtil.getComponent(kit.getDisplayName())));
-                itemMeta.setLore(description);
+                if (description != null) itemMeta.setLore(description);
                 itemStack.setItemMeta(itemMeta);
             }
 

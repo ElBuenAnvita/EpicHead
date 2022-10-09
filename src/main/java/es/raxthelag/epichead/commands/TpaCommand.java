@@ -227,7 +227,7 @@ public class TpaCommand extends BaseCommand {
                     MessageUtil.sendMessage(target, "general.tpa.tpahere-success-target", "Te has teleportado hacia <player>", Placeholder.unparsed("player", caller.getName()));
                     MessageUtil.sendMessage(caller, "general.tpa.tpahere-success-caller", "<player> se ha teleportado hacia ti", Placeholder.unparsed("player", target.getName()));
 
-                    Util.removeTask(caller);
+                    Util.removeTask(target);
                 }, delay * 20L);
 
                 Main.pendingTasks.put(target.getName(), new TpaTask(caller, target, TpaType.REVERSE, bukkitTask.getTaskId()));

@@ -34,6 +34,7 @@ import team.unnamed.gui.menu.listener.InventoryOpenListener;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -114,6 +115,14 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            try {
+                getDataConnection().savePlayer(EpicPlayer.get(player));
+                getDataConnection().savePlayerHomes(EpicPlayer.get(player));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void saveDefaultsConfig() {

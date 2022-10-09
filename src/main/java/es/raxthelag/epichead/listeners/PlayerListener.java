@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
@@ -37,7 +38,7 @@ public class PlayerListener implements Listener {
         epicPlayer.setPlayer(e.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onLogout(PlayerQuitEvent e) {
         EpicPlayer epicPlayer = EpicPlayer.get(e.getPlayer());
         epicPlayer.setLastSeenLocation(e.getPlayer().getLocation());
