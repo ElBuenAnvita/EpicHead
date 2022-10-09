@@ -9,6 +9,7 @@ custom-tags:
   'home_prefix': "<bold><yellow>HOME</yellow></bold> <dark_gray>»</dark_gray>"
   'eco_prefix': "<bold><dark_green>ECO</dark_green></bold> <dark_gray>»</dark_gray>"
   'back_prefix': "<bold><dark_red>BACK</dark_red></bold> <dark_gray>»</dark_gray>"
+  'kit_prefix': "<bold><light_purple>KITS</light_purple></bold> <dark_gray>»</dark_gray>"
 
 general:
   not-permission: "<prefix> Lo siento, no tienes los permisos suficientes"
@@ -48,9 +49,11 @@ general:
       - ""
       - "<b>   <green><click:run_command:'/tpaccept'><hover:show_text:'<green>Aceptar la petición'>[Aceptar]</hover></click></green>      <red><click:run_command:'/tpadeny'><hover:show_text:'<red>Denegar la petición'>[Denegar]</hover></click></red></b>"
       - "<st>                             </st> <b><yellow>TPA</yellow></b> <st>                             </st>"
-    tpa-accepted-caller: "<tpa_prefix> <yellow><player></yellow><green> aceptó tu solicitud.</green> <yellow>Serás teleportado en <red><time> segundos</red>, ¡no te muevas!</yellow>"
+    tpa-accepted-caller:
+      - "<tpa_prefix> <yellow><player></yellow><green> aceptó tu solicitud.</green>"
+      - "<tpa_prefix> <white>Serás teletransportado en <yellow><time> segundos</yellow>, ¡no te muevas!</white>"
     tpa-accepted-target: "<tpa_prefix> <green>Has aceptado la solicitud de teletransporte de <yellow><player></yellow>. Se teletransportará hacia ti en <yellow><time> segundos</yellow></green>"
-    tpa-success-caller: "<tpa_prefix> <green>Te has teleportado hacia <yellow><player></yellow>"
+    tpa-success-caller: "<tpa_prefix> <green>Te has teletransportado hacia <yellow><player></yellow>"
     tpa-success-target: "<tpa_prefix> <yellow><player></yellow> <green> se ha teleportado hacia ti"
 
     tpahere-no-player-specified: "<tpa_prefix> <red>No especificaste ningún jugador"
@@ -106,6 +109,7 @@ general:
     pay-sent: "<eco_prefix> <green>Has enviado satisfactoriamente <yellow><amount_format></yellow> a <yellow><player></yellow>.</green>"
     pay-receive: "<eco_prefix> <green>Has recibido un pago de <yellow><player></yellow> por un importe de <yellow><amount_format></yellow>.</green>"
     pay-no-minimum-satisfied: "<eco_prefix> <red>El monto mínimo para una transacción es de <yellow><min_amount_format></yellow>.</red>"
+    pay-no-bal-enough: "<eco_prefix> <red>No tienes suficiente dinero para hacer esta transacción.</red>"
   back:
     tp-success: "<back_prefix> <green>Has sido teletransportado hacia tu último lecho de muerte."
     delay-start: "<back_prefix> <gold>Serás enviado hacia tu último <red>lecho de muerte</red> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
@@ -114,8 +118,10 @@ general:
   kit:
     not-found: "<kit_prefix> <red>Ese kit no existe</red>"
     not-found-name: "<kit_prefix> <red>El kit <yellow><kit></yellow> no existe</red>"
-
-
+    admin:
+      kits-reloaded: "<kit_prefix> <green>Los kits han sido recargados con éxito.</green>"
+      edit-add-air: "<kit_prefix> <red>El objeto a añadir un nuevo item a este kit es el que sostienes en tu mano principal. Y ahora mismo no tienes nada allí.</red>"
+      edit-add-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
 
 error:
   generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."

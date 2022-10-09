@@ -51,6 +51,8 @@ public class KitHandler {
 
     public Set<String> getKitsNames() { return kitList.keySet(); }
 
+    public void addKit(Kit kit) { kitList.put(kit.getName().toLowerCase(), kit); }
+
     public void removeKit(String name) {
         kitList.remove(name);
     }
@@ -109,7 +111,7 @@ public class KitHandler {
         Map<Integer, ItemStack> overflowed = InventoryUtil.addAllItems(player.getInventory(), kit.getItemList().toArray(new ItemStack[0]));
         if (overflowed != null) throw new Exception("yml-general.kit.error-full-inventory");
 
-        Util.setPermissionValue(player, "epiclol.kit" + kit.getName().toLowerCase() + ".ltr", System.currentTimeMillis()+"");
+        Util.setPermissionValue(player, "epiclol.kit." + kit.getName().toLowerCase() + ".ltr", System.currentTimeMillis()+"");
     }
 
     public void chargeKit(Kit kit, EpicPlayer epicPlayer) {

@@ -103,9 +103,8 @@ public final class Main extends JavaPlugin {
             this.getPluginLoader().disablePlugin(this);
         }
 
-        // Load warps and spawn when worlds are loaded already.
+        // Load warps, permission holder and spawn when worlds are loaded already.
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            // TODO
             this.loadPermissionHolder();
             this.loadLocationsInUTF();
             this.loadWarps();
@@ -184,11 +183,11 @@ public final class Main extends JavaPlugin {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             this.kitsConfig.load(reader);
         } catch (Exception e) {
-            this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load kits.yml! Error in parsing messages!");
+            this.getServer().getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load kits.yml! Error in parsing it!");
             e.printStackTrace();
         }
 
-        this.kitHandler = new KitHandler();
+        if(this.kitHandler == null) this.kitHandler = new KitHandler();
     }
 
     public void loadCustomTags(boolean setNewMiniMessage) {

@@ -69,7 +69,9 @@ public class TpaCommand extends BaseCommand {
             return;
         }
 
-        if (tpaAccepted.getValue() == TpaType.NORMAL) {
+        createTaskTpa(player, caller, tpaAccepted.getValue());
+
+        /* if (tpaAccepted.getValue() == TpaType.NORMAL) {
             BukkitTask bukkitTask = Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
                 if (!caller.isOnline()) { MessageUtil.sendMessage(player, "general.tpa.player-got-offline","<player> se ha desconectado", Placeholder.unparsed("player", caller.getName())); return; }
                 if (!player.isOnline()) { MessageUtil.sendMessage(caller, "general.tpa.player-got-offline","<player> se ha desconectado", Placeholder.unparsed("player", player.getName())); return; }
@@ -84,7 +86,7 @@ public class TpaCommand extends BaseCommand {
 
             Main.pendingTasks.put(caller.getName(), new TpaTask(caller, player, TpaType.NORMAL, bukkitTask.getTaskId()));
             MessageUtil.sendMessage(caller, "general.tpa.tpa-accepted-caller", "No te muevas. Serás teleportado en <time>s hacia <player>", TagResolver.resolver(Placeholder.unparsed("player", player.getName()), Placeholder.unparsed("time", ""+delay)));
-        }
+        } */
     }
 
     @CommandAlias("tpadeny|tpdeny")
@@ -134,8 +136,8 @@ public class TpaCommand extends BaseCommand {
                 return;
             }
 
-            MessageUtil.sendMessage(player, "general.tpa.tpa-sent", "Has enviado un tpa a <target>", Placeholder.unparsed("target", target.getName()));
-            MessageUtil.sendMessage(target, "general.tpa.tpa-received", "Has recibido un tpa de <player>", Placeholder.unparsed("player", player.getName()));
+            // MessageUtil.sendMessage(player, "general.tpa.tpa-sent", "Has enviado un tpa a <target>", Placeholder.unparsed("target", target.getName()));
+            // MessageUtil.sendMessage(target, "general.tpa.tpa-received", "Has recibido un tpa de <player>", Placeholder.unparsed("player", player.getName()));
 
             if (Main.pendingTpas == null) return;
             // /tpahere Nuy        (siendo yo Anvita)

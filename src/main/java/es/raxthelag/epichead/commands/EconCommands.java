@@ -124,6 +124,22 @@ public class EconCommands extends BaseCommand {
             }
 
             EpicPlayer epicPlayer = EpicPlayer.get(p);
+
+            if (bigDecimalAmount.compareTo(epicPlayer.getBalance()) > 0) {
+                MessageUtil.sendMessage(
+                        p,
+                        "general.eco.pay-no-bal-enough",
+                        "Error: No tienes suficiente dinero",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("player_balance", epicPlayer.getBalance().toPlainString()),
+                                Placeholder.unparsed("player_balance_format", Main.getInstance().getEconomy().format(epicPlayer.getBalance().doubleValue())),
+                                Placeholder.unparsed("amount", bigDecimalAmount.toPlainString()),
+                                Placeholder.unparsed("amount_format", Main.getInstance().getEconomy().format(bigDecimalAmount.doubleValue()))
+                        )
+                );
+                return;
+            }
+
             EpicPlayer epicReceiver = EpicPlayer.get(player);
             Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
                 try {
@@ -150,7 +166,7 @@ public class EconCommands extends BaseCommand {
                     epicReceiver.deposit(amount, !epicReceiver.isOnline());
                     if (epicReceiver.isOnline()) {
                         MessageUtil.sendMessage(
-                                epicPlayer.getPlayer(),
+                                epicReceiver.getPlayer(),
                                 "general.eco.pay-receive",
                                 "Has recibido un pago de <player> por un importe de <amount>",
                                 TagResolver.resolver(
