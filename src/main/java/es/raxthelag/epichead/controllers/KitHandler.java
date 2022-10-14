@@ -160,6 +160,15 @@ public class KitHandler {
 
         try {
             giveKit(kit, epicPlayer);
+            MessageUtil.sendMessage(
+                    epicPlayer.getPlayer(),
+                    "general.kit.claimed",
+                    "Has reclamado el kit <kit>",
+                    TagResolver.resolver(
+                            Placeholder.unparsed("kit", kit.getName()),
+                            Placeholder.parsed("kit_displayname", kit.getDisplayName())
+                    )
+            );
         } catch (Exception e) {
             MessageUtil.sendExceptionMessage(epicPlayer.getPlayer(), e);
         }

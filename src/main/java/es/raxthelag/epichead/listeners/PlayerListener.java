@@ -36,6 +36,11 @@ public class PlayerListener implements Listener {
     public void onPlayerEnter(PlayerLoginEvent e) {
         EpicPlayer epicPlayer = EpicPlayer.get(e.getPlayer());
         epicPlayer.setPlayer(e.getPlayer());
+
+        if (Main.getInstance().getConfig().getBoolean("spawn.teleport-on-join", false)) {
+            Location spawn = Main.getInstance().getLocations().getLocation("spawn");
+            if (spawn != null) e.getPlayer().teleport(spawn);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

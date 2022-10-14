@@ -15,21 +15,43 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @CommandAlias("home|h")
 @Description("EpicHead admin console command")
 public class HomeCommand extends BaseCommand {
+    @Default
     @Subcommand("list")
-    @Description("Get help about EpicHead admin command")
+    @CommandAlias("homes")
+    @Description("Lists homes")
     public void onList(Player player) {
-        // TODO LIST HOMES.. IF POSSIBLE WITH TAGS
-        // MessageUtil.sendMessage(player, "general.help", null);
+        EpicPlayer epicPlayer = EpicPlayer.get(player);
+        List<String> playerHomes = new ArrayList<>();
+        if (!epicPlayer.areHomesLoaded()) {
+            MessageUtil.sendMessage(player, "general.home.error-homes-not-loaded", "Ocurrió un error");
+            return;
+        }
+        epicPlayer.getHomes().forEach(home -> {
+            // Main.debug("Home listed for " + player.getName() + " >> " + home.getName());
+            String hoverMessage = Main.getInstance().getMessages().getString("general.home.home-hover-text", "");
+            playerHomes.add("<click:run_command:/home " + home.getName() + "><hover:show_text:'" + hoverMessage + "'>" + home.getName() + "</hover></click>");
+        });
+
+        // Main.debug("Final string homes for " + player.getName() + " >> " + Arrays.toString(playerHomes.toArray(new String[0])));
+
+        MessageUtil.sendMessage(
+                player,
+                "general.home.home-list",
+                "<homes:', '>",
+                MessageUtil.tagList("homes", playerHomes.toArray(new String[0]))
+        );
     }
 
-    @Default
     @CatchUnknown
     @Subcommand("teleport|tp")
     @CommandCompletion("@homes")
-    public void onRequestTeleportHome(Player player, String name) {
+    public void onRequestTeleportHome(Player player, @Single String name) {
         if (Main.getIfPlayerHasPendingTasks(player)) {
             MessageUtil.sendMessage(player, "error.home-pending-task", "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando.");
             return;
@@ -107,6 +129,7 @@ public class HomeCommand extends BaseCommand {
     @Subcommand("delete|del|remove")
     @CommandAlias("delhome")
     @CommandPermission("epiclol.home.del")
+    @CommandCompletion("@homes")
     public void onRemoveHome(Player player, @Single String name) {
         EpicPlayer epicPlayer = EpicPlayer.get(player);
         if (!epicPlayer.areHomesLoaded()) {

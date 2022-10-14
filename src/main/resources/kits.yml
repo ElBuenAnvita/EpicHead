@@ -1,7 +1,9 @@
 kits:
   ejemplo:
     ==: Kit
-    gui-material: DIAMOND_SWORD
+    gui-material:
+      ==: org.bukkit.inventory.ItemStack
+      type: DIAMOND_SWORD
     delay: -1
     item-list:
       - ==: org.bukkit.inventory.ItemStack

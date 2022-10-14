@@ -3,19 +3,17 @@ package es.raxthelag.epichead.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import es.raxthelag.epichead.Main;
-import es.raxthelag.epichead.controllers.EconomyHolder;
 import es.raxthelag.epichead.controllers.EpicPlayer;
 import es.raxthelag.epichead.objects.Warp;
 import es.raxthelag.epichead.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Locale;
 
 @CommandAlias("epichead|eh")
 @Description("EpicHead admin console command")
@@ -26,8 +24,8 @@ public class EpicHeadCommand extends BaseCommand {
     @CatchUnknown
     @Subcommand("help")
     @Description("Get help about EpicHead admin command")
-    public void onHelp(Player player) {
-        MessageUtil.sendMessage(player, "general.help", null);
+    public void onHelp(CommandSender sender) {
+        MessageUtil.sendMessage(sender, "general.help", null);
     }
 
     @Subcommand("setspawn")
@@ -48,7 +46,14 @@ public class EpicHeadCommand extends BaseCommand {
             return;
         }
 
-        Main.warps.add(new Warp(name.toLowerCase(), displayName, player.getLocation()));
+        Main.warps.add(
+                new Warp(
+                        name.toLowerCase(),
+                        (displayName != null) ? displayName : name.toLowerCase(),
+                        player.getLocation()
+                )
+        );
+
         try { Main.getInstance().saveWarps(true); } catch (Exception e) { e.printStackTrace(); }
 
         MessageUtil.sendMessage(player, "general.warp.warp-add-success", "Se ha creado", Placeholder.unparsed("warp", name));
@@ -73,19 +78,19 @@ public class EpicHeadCommand extends BaseCommand {
     @Subcommand("warp delete|del")
     @CommandPermission("epiclol.admin.warp.set")
     @CommandCompletion("@warps")
-    public void onDeleteWarp(Player player, @Single String name) {
+    public void onDeleteWarp(CommandSender sender, @Single String name) {
         if (Main.warps.stream().noneMatch(w -> w.getName().equalsIgnoreCase(name))) {
-            MessageUtil.sendMessage(player, "general.warp.warp-no-exist", "La warp no existe", Placeholder.unparsed("warp", name));
+            MessageUtil.sendMessage(sender, "general.warp.warp-no-exist", "La warp no existe", Placeholder.unparsed("warp", name));
             return;
         }
 
         Main.warps.removeIf(w -> w.getName().equalsIgnoreCase(name));
         try { Main.getInstance().saveWarps(true); } catch (Exception e) { e.printStackTrace(); }
 
-        MessageUtil.sendMessage(player, "general.warp.warp-del-success", "Se ha reubicado", Placeholder.unparsed("warp", name));
+        MessageUtil.sendMessage(sender, "general.warp.warp-del-success", "Se ha eliminado", Placeholder.unparsed("warp", name));
     }
 
-    @Subcommand("eco add|give")
+    @Subcommand("eco add|give|deposit")
     @CommandPermission("epiclol.admin.eco.add")
     @CommandCompletion("@players @nothing")
     public void onEcoAdd(CommandSender sender, String playerName, @Single double amount) {
@@ -100,7 +105,17 @@ public class EpicHeadCommand extends BaseCommand {
                     Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
                 }
                 epicPlayer.deposit(amount, true);
-                // TODO MESSAGE DEPOSIT SUCCESS
+
+                MessageUtil.sendMessage(
+                        sender,
+                        "general.eco.admin.deposit-success",
+                        "Deposito exitoso",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("player", epicPlayer.getPlayerName()),
+                                Placeholder.unparsed("player_balance", Main.getInstance().getEconomy().format(epicPlayer.getBalance().doubleValue())),
+                                Placeholder.unparsed("amount", Main.getInstance().getEconomy().format(amount))
+                        )
+                );
 
                 if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
             } catch (SQLException e) {
@@ -116,7 +131,7 @@ public class EpicHeadCommand extends BaseCommand {
         // EconomyHolder.
     }
 
-    @Subcommand("eco remove")
+    @Subcommand("eco remove|withdraw")
     @CommandPermission("epiclol.admin.eco.remove")
     @CommandCompletion("@players @nothing")
     public void onEcoRemove(CommandSender sender, String playerName, @Single double amount) {
@@ -131,7 +146,17 @@ public class EpicHeadCommand extends BaseCommand {
                     Main.getInstance().getDataConnection().loadPlayer(epicPlayer);
                 }
                 epicPlayer.withdraw(amount, true);
-                // TODO MESSAGE WITHDRAW SUCCESS
+
+                MessageUtil.sendMessage(
+                        sender,
+                        "general.eco.admin.withdraw-success",
+                        "Retiro exitoso",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("player", epicPlayer.getPlayerName()),
+                                Placeholder.unparsed("player_balance", Main.getInstance().getEconomy().format(epicPlayer.getBalance().doubleValue())),
+                                Placeholder.unparsed("amount", Main.getInstance().getEconomy().format(amount))
+                        )
+                );
 
                 if (!epicPlayer.isOnline()) EpicPlayer.remove(epicPlayer.getName());
             } catch (SQLException e) {

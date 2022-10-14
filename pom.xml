@@ -6,7 +6,7 @@
 
     <groupId>es.raxthelag</groupId>
     <artifactId>epichead</artifactId>
-    <version>0.9.1-ALPHA-2.c</version>
+    <version>0.9.7-ALPHA</version>
     <packaging>jar</packaging>
 
     <name>EpicHead</name>
@@ -139,12 +139,18 @@
         <dependency>
             <groupId>team.unnamed</groupId>
             <artifactId>gui-item-api</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.2</version> <!-- 3.3.1 -->
         </dependency>
         <dependency>
             <groupId>team.unnamed</groupId>
             <artifactId>gui-menu-adapt-v1_18_R2</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.2</version> <!-- 3.3.1 -->
+            <classifier>dev</classifier>
+        </dependency>
+        <dependency>
+            <groupId>team.unnamed</groupId>
+            <artifactId>gui-menu-adapt-v1_19_R1</artifactId>
+            <version>3.3.2</version> <!-- 3.3.1 -->
             <classifier>dev</classifier>
         </dependency>
     </dependencies>

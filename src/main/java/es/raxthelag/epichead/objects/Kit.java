@@ -18,7 +18,7 @@ public class Kit implements ConfigurationSerializable {
     public String name;
     public String displayName;
     public List<String> description = null;
-    public Material guiItem;
+    public ItemStack guiItem;
     public @Nullable String permission;
     public double delay;
     public BigDecimal price;
@@ -27,7 +27,34 @@ public class Kit implements ConfigurationSerializable {
     public List<BigDecimal> moneyList = new ArrayList<>();
     public List<String> commandList = new ArrayList<>();
 
-    public Kit(String name, String displayName, Material guiItem, double delay, BigDecimal price, @Nullable String permission) {
+    public Kit(String name) {
+        this.name = name;
+        this.displayName = name;
+        this.guiItem = new ItemStack(Material.STONE, 1);
+        this.delay = -1;
+        this.price = BigDecimal.ZERO;
+        this.permission = null;
+    }
+
+    public Kit(String name, String displayName) {
+        this.name = name;
+        this.displayName = displayName;
+        this.guiItem = new ItemStack(Material.STONE, 1);
+        this.delay = -1;
+        this.price = BigDecimal.ZERO;
+        this.permission = null;
+    }
+
+    public Kit(String name, String displayName, ItemStack guiItem) {
+        this.name = name;
+        this.displayName = displayName;
+        this.guiItem = guiItem;
+        this.delay = -1;
+        this.price = BigDecimal.ZERO;
+        this.permission = null;
+    }
+
+    public Kit(String name, String displayName, ItemStack guiItem, double delay, BigDecimal price, @Nullable String permission) {
         this.name = name;
         this.displayName = displayName;
         this.guiItem = guiItem;
@@ -40,7 +67,7 @@ public class Kit implements ConfigurationSerializable {
     public Kit(Map<String, Object> deserialize) {
         this.name = deserialize.get("name").toString();
         this.displayName = deserialize.get("display-name").toString();
-        this.guiItem = Material.matchMaterial(deserialize.get("gui-material").toString());
+        this.guiItem = (ItemStack) deserialize.get("gui-material");
         this.delay = Double.parseDouble(deserialize.get("delay").toString());
         this.price = new BigDecimal(deserialize.get("price").toString());
         if (deserialize.get("item-list") != null) this.itemList = (List<ItemStack>) deserialize.get("item-list");
@@ -64,7 +91,7 @@ public class Kit implements ConfigurationSerializable {
         kit.put("name", this.name);
         kit.put("description", this.description);
         kit.put("display-name", this.name);
-        kit.put("gui-material", this.guiItem.toString());
+        kit.put("gui-material", this.guiItem);
         kit.put("delay", this.delay+"");
         kit.put("price", this.price.toPlainString());
         kit.put("item-list", this.itemList);
@@ -112,12 +139,12 @@ public class Kit implements ConfigurationSerializable {
         this.price = price;
     }
 
-    public Material getGuiItem() {
+    public ItemStack getGuiItemStack() {
         return guiItem;
     }
 
-    public void setGuiItem(Material guiItem) {
-        this.guiItem = guiItem;
+    public void setGuiItemStack(ItemStack itemStack) {
+        this.guiItem = itemStack;
     }
 
     @Nullable

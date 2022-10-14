@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataConnection {
     public String host;
@@ -176,14 +178,24 @@ public class DataConnection {
             statement.setString(1, player.getName().toLowerCase());
 
             ResultSet resultSet = statement.executeQuery();
+            List<Home> playerHomes = new ArrayList<>();
             while (resultSet.next()) {
-                player.addHome(
-                        new Home(resultSet.getInt("id"),
+                playerHomes.add(
+                        new Home(
+                                resultSet.getInt("id"),
                                 resultSet.getString("name"),
-                                new Location(Bukkit.getWorld(resultSet.getString("world")), resultSet.getDouble("x"), resultSet.getDouble("y"), resultSet.getDouble("z"))
+                                new Location(
+                                        Bukkit.getWorld(resultSet.getString("world")),
+                                        resultSet.getDouble("x"),
+                                        resultSet.getDouble("y"),
+                                        resultSet.getDouble("z"),
+                                        resultSet.getFloat("yaw"),
+                                        resultSet.getFloat("pitch")
+                                )
                         )
                 );
             }
+            player.setHomes(playerHomes);
             player.setHomesLoaded(true);
         } finally {
             getConnection().close();

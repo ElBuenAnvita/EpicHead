@@ -84,10 +84,14 @@ general:
     warp-add-success: "<warp_prefix> <green>Se ha creado la warp <yellow><warp></yellow> exitosamente.</green>"
     warp-rel-success: "<warp_prefix> <green>Se ha reubicado la warp <yellow><warp></yellow> exitosamente.</green>"
     warp-del-success: "<warp_prefix> <green>Se ha eliminado la warp <yellow><warp></yellow> exitosamente.</green>"
-    delay-start: "<warp_prefix> Serás enviado a <warp_display><r> en <yellow><time> segundos</yellow>, ¡no te muevas!"
+    delay-start: "<warp_prefix> <gold>Serás enviado a</gold> <warp_display><reset> <gold>en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
     canceled-by-movement: "<warp_prefix> <red>Se ha cancelado tu teletransporte porque te has movido."
     generic-tp-success: "<warp_prefix> <green>Has sido teletransportado hacia <yellow><warp_display></yellow><green>."
   home:
+    home-list:
+      - "<home_prefix> <gold>Estos son tus hogares...</gold>"
+      - "<white><homes:'<gray>,</gray> '></white>"
+    home-hover-text: "<green>Haz click aquí para ir a este hogar</green>"
     error-homes-not-loaded: "<home_prefix> <red>Ocurrió un error al intentar obtener tus hogares. Por favor vuelve a intentarlo más tarde</red>"
     home-no-exist: "<home_prefix> <red>No tienes ningún hogar llamado <yellow><home></yellow>.</red>"
     delay-start: "<home_prefix> <gold>Serás enviado a <yellow><home></yellow> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
@@ -110,6 +114,10 @@ general:
     pay-receive: "<eco_prefix> <green>Has recibido un pago de <yellow><player></yellow> por un importe de <yellow><amount_format></yellow>.</green>"
     pay-no-minimum-satisfied: "<eco_prefix> <red>El monto mínimo para una transacción es de <yellow><min_amount_format></yellow>.</red>"
     pay-no-bal-enough: "<eco_prefix> <red>No tienes suficiente dinero para hacer esta transacción.</red>"
+    admin:
+      withdraw-success: "<prefix> Se le ha descontado <red>-<amount></red> a <yellow><player></yellow> (Nuevo balance: <yellow><player_balance></yellow>)"
+      deposit-success: "<prefix> Se le ha depositado <green>+<amount></green> a <yellow><player></yellow> (Nuevo balance: <yellow><player_balance></yellow>)"
+      transaction-failure: "<prefix> <red>Ocurrió un error al intentar realizar esta operación. Consulta la consola para más detalles.</red>"
   back:
     tp-success: "<back_prefix> <green>Has sido teletransportado hacia tu último lecho de muerte."
     delay-start: "<back_prefix> <gold>Serás enviado hacia tu último <red>lecho de muerte</red> en <yellow><time> segundos</yellow>, ¡no te muevas!</gold>"
@@ -118,8 +126,19 @@ general:
   kit:
     not-found: "<kit_prefix> <red>Ese kit no existe</red>"
     not-found-name: "<kit_prefix> <red>El kit <yellow><kit></yellow> no existe</red>"
+    claimed: "<kit_prefix> <green>Has reclamado el kit <yellow><kit_displayname></yellow></green>"
+    already-claimed-only-once: "<kit_prefix> <red>Ya has reclamado el kit <yellow><kit_displayname></yellow>. Este kit solo se puede reclamar una vez.</red>"
+    already-claimed-delay: "<kit_prefix> <red>Tienes que esperar <yellow><duration></yellow> para volver a reclamar el kit <kit_displayname>.</red>"
     admin:
+      kit-exists: "<kit_prefix> <red>Ya existe un kit nombrado <yellow><kit></yellow>.</red>"
       kits-reloaded: "<kit_prefix> <green>Los kits han sido recargados con éxito.</green>"
+      create-success: "<kit_prefix> <green>Se ha creado el kit <yellow><kit></yellow>.</green>"
+      delay-error-seconds:
+        - "<kit_prefix> <red>Has especificado un delay incorrecto.</red>"
+        - "<red>* Este debe ser <yellow>-1</yellow> para especificar que solo se puede (para una única vez) o mayor a cero (para especificar."
+      set-delay-once: "<kit_prefix> <green>El kit <yellow><kit></yellow> ahora solo se puede reclamar <yellow>una sola vez</yellow>.</green>"
+      set-delay: "<kit_prefix> <green>El kit <yellow><kit></yellow> ahora solo se puede reclamar cada <yellow><time></yellow>.</green>"
+      set-displayname: "<kit_prefix> <green>El nombre en pantalla del kit <yellow><kit></yellow> ha sido actualizado a <kit_displayname>.</green>"
       edit-add-air: "<kit_prefix> <red>El objeto a añadir un nuevo item a este kit es el que sostienes en tu mano principal. Y ahora mismo no tienes nada allí.</red>"
       edit-add-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
 
@@ -127,3 +146,7 @@ error:
   generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   spawn-pending-task: "<spawn_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   home-pending-task: "<home_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
+
+other:
+  kit:
+    title-gui: "<bold>Kits</bold>"

@@ -3,10 +3,13 @@ package es.raxthelag.epichead.util;
 import es.raxthelag.epichead.Main;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -70,6 +73,10 @@ public class MessageUtil {
         BaseComponent baseComponent = new TextComponent("");
         Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
 
+        if (!(sender instanceof Player)) {
+            Main.getInstance().getLogger().info(LegacyComponentSerializer.legacySection().serialize(component));
+            return;
+        }
         sender.spigot().sendMessage(baseComponent);
     }
 
@@ -88,6 +95,10 @@ public class MessageUtil {
         BaseComponent baseComponent = new TextComponent("");
         Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
 
+        if (!(sender instanceof Player)) {
+            Main.getInstance().getLogger().info(LegacyComponentSerializer.legacySection().serialize(component));
+            return;
+        }
         sender.spigot().sendMessage(baseComponent);
     }
 
@@ -118,5 +129,15 @@ public class MessageUtil {
         Arrays.stream(baseComponents).forEach(baseComponent::addExtra);
 
         sender.spigot().sendMessage(baseComponent);
+    }
+
+    public static TagResolver tagList(String tagName, String[] list) {
+        return TagResolver.resolver(tagName, (argumentQueue, context) -> {
+            final String separatingComma = argumentQueue.popOr(tagName + " tag requires the comma separating argument").value();
+            String str = String.join(separatingComma, list);
+            Component component = miniMessage.deserialize(str);
+
+            return Tag.selfClosingInserting(component);
+        });
     }
 }
