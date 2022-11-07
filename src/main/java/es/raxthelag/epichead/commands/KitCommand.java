@@ -7,6 +7,7 @@ import es.raxthelag.epichead.controllers.EpicPlayer;
 import es.raxthelag.epichead.objects.Kit;
 import es.raxthelag.epichead.util.MessageUtil;
 import es.raxthelag.epichead.util.Util;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -19,6 +20,7 @@ import team.unnamed.gui.menu.item.ItemClickable;
 import team.unnamed.gui.menu.type.MenuInventory;
 import team.unnamed.gui.menu.type.MenuInventoryBuilder;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -96,6 +98,7 @@ public class KitCommand extends BaseCommand {
         @Subcommand("give")
         @CommandPermission("epiclol.admin.kit.give")
         @CommandCompletion("@kits @players")
+        @Syntax("<kit> <player>")
         public void onKitGive(Player player, String kitName, Player target) {
             Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
             if (kit == null) {
@@ -117,7 +120,7 @@ public class KitCommand extends BaseCommand {
 
         @Subcommand("create")
         @CommandPermission("epiclol.admin.kit.create")
-        public void createKit(CommandSender sender, String kitName, @Optional @Single String guiMaterial) {
+        public void createKit(CommandSender sender, String kitName) {
             if (Main.getInstance().getKitHandler().getKits().stream().anyMatch(kit -> kit.getName().equalsIgnoreCase(kitName))) {
                 MessageUtil.sendMessage(
                         sender,
@@ -130,24 +133,7 @@ public class KitCommand extends BaseCommand {
 
             Kit kit;
 
-            if (!(sender instanceof Player)) {
-                if (guiMaterial == null) {
-                    kit = new Kit(kitName);
-                } else {
-                    Material material = Material.matchMaterial(guiMaterial);
-                    if (material != null) {
-                        kit = new Kit(kitName, kitName, new ItemStack(material, 1));
-                    } else kit = new Kit(kitName);
-                }
-            } else {
-                Player p = (Player) sender;
-                if (p.getInventory().getItemInMainHand().getType() != Material.AIR) {
-                    kit = new Kit(kitName, kitName, p.getInventory().getItemInMainHand());
-                } else if (guiMaterial != null) {
-                    Material material = Material.matchMaterial(guiMaterial);
-                    if (material != null) { kit = new Kit(kitName, kitName, new ItemStack(material, 1)); } else kit = new Kit(kitName);
-                } else kit = new Kit(kitName);
-            }
+            kit = new Kit(kitName);
 
             MessageUtil.sendMessage(
                     sender,
@@ -158,6 +144,35 @@ public class KitCommand extends BaseCommand {
 
             Main.getInstance().getKitHandler().addKit(kit);
             Main.getInstance().getKitHandler().saveKits();
+        }
+
+        @Subcommand("set displayname")
+        @CommandCompletion("@kits @nothing")
+        @CommandPermission("epiclol.admin.kit.set.displayname")
+        public void kitSetDisplayName(CommandSender sender, @Single String kitName, String displayName) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(
+                        sender,
+                        "general.kit.not-found-name",
+                        "Error: El kit <kit> no existe.",
+                        Placeholder.unparsed("kit", kitName)
+                );
+                return;
+            }
+
+            kit.setDisplayName(displayName);
+            Main.getInstance().getKitHandler().saveKits();
+
+            MessageUtil.sendMessage(
+                    sender,
+                    "general.kit.admin.set-displayname",
+                    "Display name set to <kit_displayname>",
+                    TagResolver.resolver(
+                            Placeholder.unparsed("kit", kitName),
+                            Placeholder.parsed("kit_displayname", displayName)
+                    )
+            );
         }
 
         @Subcommand("set delay")
@@ -207,23 +222,23 @@ public class KitCommand extends BaseCommand {
                 MessageUtil.sendMessage(
                         sender,
                         "general.kit.admin.set-delay",
-                        "Delay set to <duration>",
+                        "Delay set to <time>",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName),
-                                Placeholder.unparsed("duration", Util.getDurationSmall(delayTime.getTimeInMillis()))
+                                Placeholder.unparsed("time", Util.getDurationSmall(delayTime.getTimeInMillis()))
                         )
                 );
             }
         }
 
-        @Subcommand("set displayname")
-        @CommandCompletion("@kits @nothing")
-        @CommandPermission("epiclol.admin.kit.set.displayname")
-        public void kitSetDisplayName(CommandSender sender, @Single String kitName, String displayName) {
+        @Subcommand("set guiitem")
+        @CommandCompletion("@kits")
+        @CommandPermission("epiclol.admin.kit.set.guiitem")
+        public void kitSetGUIItem(Player player, @Single String kitName) {
             Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
             if (kit == null) {
                 MessageUtil.sendMessage(
-                        sender,
+                        player,
                         "general.kit.not-found-name",
                         "Error: El kit <kit> no existe.",
                         Placeholder.unparsed("kit", kitName)
@@ -231,16 +246,51 @@ public class KitCommand extends BaseCommand {
                 return;
             }
 
-            kit.setDisplayName(displayName);
+            ItemStack itemStack = player.getInventory().getItemInMainHand();
+            if (itemStack.getType() == Material.AIR) {
+                MessageUtil.sendMessage(player, "error.must-be-item-in-main-hand", "Debes sostener un objeto al ejecutar este comando");
+                return;
+            }
+
+            kit.setGuiItemStack(itemStack);
             Main.getInstance().getKitHandler().saveKits();
 
             MessageUtil.sendMessage(
-                    sender,
-                    "general.kit.admin.set-displayname",
-                    "Display name set to <kit_displayname>",
+                    player,
+                    "general.kit.admin.set-guiitem-success",
+                    "Se ha añadido el item en mano al kit.",
                     TagResolver.resolver(
-                            Placeholder.unparsed("kit", kitName),
-                            Placeholder.parsed("kit_displayname", displayName)
+                            Placeholder.unparsed("kit", kitName.toLowerCase()),
+                            Placeholder.parsed("kit_display", kit.getDisplayName())
+                    )
+            );
+        }
+
+        @Subcommand("set price")
+        @CommandCompletion("@kits")
+        @CommandPermission("epiclol.admin.kit.set.price")
+        public void setKitPrice(Player player, @Single String kitName, double price) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+            if (price < 0) {
+                MessageUtil.sendMessage(player, "general.kit.admin.price-less-zero", "Error: El precio no puede ser menor que cero.");
+                return;
+            }
+
+            kit.setPrice(BigDecimal.valueOf(price));
+            Main.getInstance().getKitHandler().saveKits();
+
+            MessageUtil.sendMessage(
+                    player,
+                    "general.kit.admin.set-price-success",
+                    "El precio del kit <kit> ha ajustado a <price>.",
+                    TagResolver.resolver(
+                            Placeholder.unparsed("kit", kitName.toLowerCase()),
+                            Placeholder.parsed("kit_display", kit.getDisplayName()),
+                            Placeholder.unparsed("price", Main.getInstance().getEconomy().format(price))
                     )
             );
         }
@@ -264,7 +314,7 @@ public class KitCommand extends BaseCommand {
             if (itemStack.getType() == Material.AIR) {
                 MessageUtil.sendMessage(
                         player,
-                        "general.kit.admin.edit-add-air",
+                        "general.kit.admin.edit-add-item-air",
                         "Debes sostener un objeto al ejecutar este comando",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
@@ -279,13 +329,78 @@ public class KitCommand extends BaseCommand {
 
             MessageUtil.sendMessage(
                     player,
-                    "general.kit.admin.edit-add-success",
+                    "general.kit.admin.edit-add-item-success",
                     "Se ha añadido el item en mano al kit.",
                     TagResolver.resolver(
                             Placeholder.unparsed("kit", kitName.toLowerCase()),
                             Placeholder.parsed("kit_display", kit.getDisplayName())
                     )
             );
+        }
+
+        @Subcommand("edit listitem|listitems")
+        @CommandCompletion("@kits")
+        @CommandPermission("epiclol.admin.kit.edit.items")
+        public void kitListItems(Player player, @Single String kitName) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+
+            MessageUtil.sendMessage(player, "general.kit.admin.title-item-list", "---");
+            int i = 0;
+            for (ItemStack itemStack : kit.getItemList()) {
+                MessageUtil.sendMessage(
+                        player,
+                        "general.kit.admin.template-item-list",
+                        "<dark_gray>[<green><index></green>]</dark_gray> - <gray><yellow><item></yellow> * <item_qty></gray>",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("index", i+""),
+                                Placeholder.unparsed("item_name", itemStack.getType().toString()),
+                                Placeholder.component("item", Component.translatable(itemStack.translationKey()).hoverEvent(itemStack)),
+                                Placeholder.unparsed("item_qty", itemStack.getAmount()+"")
+                        )
+                );
+                i++;
+            }
+            MessageUtil.sendMessage(player, "general.kit.admin.title-item-list", "---");
+        }
+
+        @Subcommand("edit removeitem")
+        @CommandCompletion("@kits")
+        @CommandPermission("epiclol.admin.kit.edit.items")
+        public void kitListItems(Player player, String kitName, int index) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+
+            try {
+                kit.getItemList().remove(index);
+                Main.getInstance().getKitHandler().saveKits();
+
+                MessageUtil.sendMessage(
+                        player,
+                        "general.kit.admin.remove-item-success",
+                        "Se ha eliminado el item del kit.",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("kit", kitName.toLowerCase()),
+                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                        )
+                );
+            } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+                MessageUtil.sendMessage(
+                        player,
+                        "general.kit.admin.index-out-of-bounds",
+                        "Has especificado un indice fuera de los limites.",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("kit", kitName.toLowerCase()),
+                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                        )
+                );
+            }
         }
     }
 }

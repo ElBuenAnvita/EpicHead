@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CommandAlias("home|h")
-@Description("EpicHead admin console command")
+@Description("Home functionality")
 public class HomeCommand extends BaseCommand {
     @Default
     @Subcommand("list")
@@ -101,7 +101,7 @@ public class HomeCommand extends BaseCommand {
 
     @Subcommand("set|add")
     @CommandAlias("sethome")
-    @CommandPermission("epichead.home.set")
+    @CommandPermission("epiclol.home.set")
     public void onNewHome(Player player, @Single String name) {
         EpicPlayer epicPlayer = EpicPlayer.get(player);
         if (!epicPlayer.areHomesLoaded()) {
@@ -110,7 +110,7 @@ public class HomeCommand extends BaseCommand {
         }
 
         int maxHomes = getMaxHomesAllowed(player);
-        if (maxHomes >= epicPlayer.getHomes().size()) {
+        if (epicPlayer.getHomes().size() >= maxHomes) {
             MessageUtil.sendMessage(player, "general.home.max-homes-reached", "Has alcanzado el límite de casas");
             return;
         }
@@ -148,7 +148,7 @@ public class HomeCommand extends BaseCommand {
 
     private int getMaxHomesAllowed(Player player) {
         for (PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
-            if (permission.getPermission().startsWith("epichead.homes.") && permission.getValue()) {
+            if (permission.getPermission().startsWith("epiclol.homes.") && permission.getValue()) {
                 return Integer.parseInt(permission.getPermission().substring(permission.getPermission().lastIndexOf('.' + 1)));
             }
         }

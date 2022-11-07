@@ -76,7 +76,7 @@ public class EpicHeadCommand extends BaseCommand {
     }
 
     @Subcommand("warp delete|del")
-    @CommandPermission("epiclol.admin.warp.set")
+    @CommandPermission("epiclol.admin.warp.del")
     @CommandCompletion("@warps")
     public void onDeleteWarp(CommandSender sender, @Single String name) {
         if (Main.warps.stream().noneMatch(w -> w.getName().equalsIgnoreCase(name))) {

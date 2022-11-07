@@ -159,6 +159,7 @@ public class KitHandler {
         }
 
         try {
+            epicPlayer.withdraw(kit.getPrice().doubleValue());
             giveKit(kit, epicPlayer);
             MessageUtil.sendMessage(
                     epicPlayer.getPlayer(),

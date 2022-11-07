@@ -134,18 +134,27 @@ general:
       kits-reloaded: "<kit_prefix> <green>Los kits han sido recargados con éxito.</green>"
       create-success: "<kit_prefix> <green>Se ha creado el kit <yellow><kit></yellow>.</green>"
       delay-error-seconds:
-        - "<kit_prefix> <red>Has especificado un delay incorrecto.</red>"
-        - "<red>* Este debe ser <yellow>-1</yellow> para especificar que solo se puede (para una única vez) o mayor a cero (para especificar."
+        - "<kit_prefix> <red>Has especificado un delay incorrecto. Este debe ser...</red>"
+        - "<red>* <yellow>-1</yellow> para especificar que solo se puede reclamar una vez.</red>"
+        - "<red>* O mayor a cero para especificar los segundos que el jugador debe esperar para reclamarlo otra vez.</red>"
       set-delay-once: "<kit_prefix> <green>El kit <yellow><kit></yellow> ahora solo se puede reclamar <yellow>una sola vez</yellow>.</green>"
       set-delay: "<kit_prefix> <green>El kit <yellow><kit></yellow> ahora solo se puede reclamar cada <yellow><time></yellow>.</green>"
       set-displayname: "<kit_prefix> <green>El nombre en pantalla del kit <yellow><kit></yellow> ha sido actualizado a <kit_displayname>.</green>"
-      edit-add-air: "<kit_prefix> <red>El objeto a añadir un nuevo item a este kit es el que sostienes en tu mano principal. Y ahora mismo no tienes nada allí.</red>"
-      edit-add-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
+      set-guiitem-success: "<kit_prefix> <green>Has actualizado el item interfaz del kit <yellow><kit></yellow>. El nombre y lore de este item serán ignorados y reemplazados por el nombre del kit y su descripción respectivamente.</green>"
+      set-price-success: "<kit_prefix> <green>El precio del kit <kit_display> ha ajustado a <yellow><price></yellow>.</green>"
+      edit-add-item-air: "<kit_prefix> <red>El objeto a añadir un nuevo item a este kit es el que sostienes en tu mano principal. Y ahora mismo no tienes nada allí.</red>"
+      edit-add-item-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
+      edit-remove-item-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
+      title-item-list: "<dark_gray><st>                   </st> <blue>Lista de items</blue> <st>                   </st></dark_gray>"
+      template-item-list: "<dark_gray>[<green><index></green>]</dark_gray> - <gray><yellow><item></yellow> * <item_qty></gray>"
+      price-less-zero: "<kit_prefix> <red>El precio no puede ser menor que cero.</red>"
+      index-out-of-bounds: "<kit_prefix> <red>Has especificado un indice fuera de los limites.</red>"
 
 error:
   generic-pending-task: "<red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   spawn-pending-task: "<spawn_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   home-pending-task: "<home_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
+  must-be-item-in-main-hand: "<kit_prefix> <red>Debes estar sosteniendo algún objeto en la mano principal.</red>"
 
 other:
   kit:
