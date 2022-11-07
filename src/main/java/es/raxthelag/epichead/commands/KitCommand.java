@@ -8,6 +8,8 @@ import es.raxthelag.epichead.objects.Kit;
 import es.raxthelag.epichead.util.MessageUtil;
 import es.raxthelag.epichead.util.Util;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -21,10 +23,7 @@ import team.unnamed.gui.menu.type.MenuInventory;
 import team.unnamed.gui.menu.type.MenuInventoryBuilder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 @CommandAlias("kit")
 public class KitCommand extends BaseCommand {
@@ -348,7 +347,7 @@ public class KitCommand extends BaseCommand {
                 return;
             }
 
-            MessageUtil.sendMessage(player, "general.kit.admin.title-item-list", "---");
+            MessageUtil.sendMessage(player, "general.kit.admin.header-item-list", "---");
             int i = 0;
             for (ItemStack itemStack : kit.getItemList()) {
                 MessageUtil.sendMessage(
@@ -359,12 +358,22 @@ public class KitCommand extends BaseCommand {
                                 Placeholder.unparsed("index", i+""),
                                 Placeholder.unparsed("item_name", itemStack.getType().toString()),
                                 Placeholder.component("item", Component.translatable(itemStack.translationKey()).hoverEvent(itemStack)),
-                                Placeholder.unparsed("item_qty", itemStack.getAmount()+"")
+                                Placeholder.unparsed("item_qty", itemStack.getAmount()+""),
+                                Placeholder.component("btn_del",
+                                        MessageUtil.getComponent("other.kit.button-delete", "")
+                                                .clickEvent(ClickEvent.suggestCommand("/kit admin edit removeitem " + kit.getName() + " " + i))
+                                                .hoverEvent(HoverEvent.showText(MessageUtil.getComponent("other.kit.hover-click-to-delete", "Eliminar")))
+                                ),
+                                Placeholder.component("btn_give",
+                                        MessageUtil.getComponent("other.kit.button-give", "")
+                                                .clickEvent(ClickEvent.runCommand("/kit admin edit checkitem " + kit.getName() + " " + i))
+                                                .hoverEvent(HoverEvent.showText(MessageUtil.getComponent("other.kit.hover-click-to-give", "Observar")))
+                                )
                         )
                 );
                 i++;
             }
-            MessageUtil.sendMessage(player, "general.kit.admin.title-item-list", "---");
+            MessageUtil.sendMessage(player, "general.kit.admin.footer-item-list", "---");
         }
 
         @Subcommand("edit removeitem")
@@ -386,6 +395,7 @@ public class KitCommand extends BaseCommand {
                         "general.kit.admin.remove-item-success",
                         "Se ha eliminado el item del kit.",
                         TagResolver.resolver(
+                                Placeholder.unparsed("index", index+""),
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
                                 Placeholder.parsed("kit_display", kit.getDisplayName())
                         )
@@ -401,6 +411,86 @@ public class KitCommand extends BaseCommand {
                         )
                 );
             }
+        }
+
+        @Subcommand("edit checkitem|testitem")
+        @CommandPermission("epiclol.admin.kit.edit.items")
+        @Private
+        public void kitTestItem(Player player, String kitName, int index) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+
+            try {
+                HashMap<Integer, ItemStack> itemsLeft = player.getInventory().addItem(kit.getItemList().get(index));
+                if (itemsLeft.isEmpty()) {
+                    MessageUtil.sendMessage(
+                            player,
+                            "general.kit.admin.edit-give-item-success",
+                            "Se ha entregado el item <index> del kit.",
+                            TagResolver.resolver(
+                                    Placeholder.unparsed("index", index+""),
+                                    Placeholder.unparsed("kit", kitName.toLowerCase()),
+                                    Placeholder.parsed("kit_display", kit.getDisplayName())
+                            )
+                    );
+                } else {
+                    MessageUtil.sendMessage(player, "general.kit.admin.error.full-inventory", "Tienes el inventario lleno");
+                }
+            } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+                MessageUtil.sendMessage(
+                        player,
+                        "general.kit.admin.index-out-of-bounds",
+                        "Has especificado un indice fuera de los limites.",
+                        TagResolver.resolver(
+                                Placeholder.unparsed("kit", kitName.toLowerCase()),
+                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                        )
+                );
+            }
+        }
+
+        @Subcommand("delete")
+        @CommandPermission("epiclol.admin.kit.delete")
+        public void kitWarnDelete(Player player, String kitName) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+
+            MessageUtil.sendMessage(
+                    player,
+                    "general.kit.admin.delete-warning",
+                    "Estás a punto de eliminar el kit <kit>, ¿estás seguro? <btn_delete>",
+                    TagResolver.resolver(
+                            Placeholder.unparsed("kit", kitName.toLowerCase()),
+                            Placeholder.component("btn_delete", MessageUtil.getComponent("other.kit.button-delete-kit", "Eliminar definitivamente").clickEvent(ClickEvent.runCommand("/kit admin deletepermanently " + kitName)))
+                    )
+            );
+        }
+
+        @Subcommand("deletepermanently")
+        @CommandPermission("epiclol.admin.kit.delete")
+        @Private
+        public void kitDeletePermanent(Player player, String kitName) {
+            Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
+            if (kit == null) {
+                MessageUtil.sendMessage(player, "general.kit.not-found-name", "Error: El kit <kit> no existe.", Placeholder.unparsed("kit", kitName));
+                return;
+            }
+
+            Main.getInstance().getKitHandler().removeKit(kitName);
+            Main.getInstance().getKitHandler().saveKits();
+
+            MessageUtil.sendMessage(
+                    player,
+                    "general.kit.admin.delete-success",
+                    "Se ha eliminado el kit <kit>.",
+                    Placeholder.unparsed("kit", kitName.toLowerCase())
+            );
         }
     }
 }

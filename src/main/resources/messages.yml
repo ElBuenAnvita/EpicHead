@@ -133,6 +133,16 @@ general:
       kit-exists: "<kit_prefix> <red>Ya existe un kit nombrado <yellow><kit></yellow>.</red>"
       kits-reloaded: "<kit_prefix> <green>Los kits han sido recargados con éxito.</green>"
       create-success: "<kit_prefix> <green>Se ha creado el kit <yellow><kit></yellow>.</green>"
+      delete-warning:
+        - "<st>               </st> <yellow>⚠</yellow> <dark_red><bold>ADVERTENCIA</bold></dark_red> <yellow>⚠</yellow> <st>               </st>"
+        - "<gray>Estás a punto de <u>eliminar</u> el kit <red><kit></red>. Esta acción no se puede deshacer.</gray>"
+        - " "
+        - "<gray>Si estás seguro de lo que estás haciendo, haz click en el siguiente botón</gray>"
+        - " "
+        - "        <btn_delete>"
+        - " "
+        - "<st>               </st> <yellow>⚠</yellow> <dark_red><bold>ADVERTENCIA</bold></dark_red> <yellow>⚠</yellow> <st>               </st>"
+      delete-success: "<kit_prefix> <green>Se ha eliminado el kit <red><kit></red>.</green>"
       delay-error-seconds:
         - "<kit_prefix> <red>Has especificado un delay incorrecto. Este debe ser...</red>"
         - "<red>* <yellow>-1</yellow> para especificar que solo se puede reclamar una vez.</red>"
@@ -145,8 +155,10 @@ general:
       edit-add-item-air: "<kit_prefix> <red>El objeto a añadir un nuevo item a este kit es el que sostienes en tu mano principal. Y ahora mismo no tienes nada allí.</red>"
       edit-add-item-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
       edit-remove-item-success: "<kit_prefix> <green>Se ha añadido el objeto que sostienes en tu mano principal al kit <kit_display>.</green>"
-      title-item-list: "<dark_gray><st>                   </st> <blue>Lista de items</blue> <st>                   </st></dark_gray>"
-      template-item-list: "<dark_gray>[<green><index></green>]</dark_gray> - <gray><yellow><item></yellow> * <item_qty></gray>"
+      edit-give-item-success: "<kit_prefix> <green>Se ha entregado el item <yellow>N°<index></yellow> que pertenece al kit <yellow><kit_displayname></yellow></green>"
+      header-item-list: "<dark_gray><st>                   </st> <blue>Lista de items</blue> <st>                   </st></dark_gray>"
+      footer-item-list: "<dark_gray><st>                                                                            </st></dark_gray>"
+      template-item-list: "<dark_gray>[<green><index></green>]</dark_gray><btn_del> <btn_give> - <gray><yellow><item></yellow> * <item_qty></gray>"
       price-less-zero: "<kit_prefix> <red>El precio no puede ser menor que cero.</red>"
       index-out-of-bounds: "<kit_prefix> <red>Has especificado un indice fuera de los limites.</red>"
 
@@ -155,7 +167,13 @@ error:
   spawn-pending-task: "<spawn_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   home-pending-task: "<home_prefix> <red>Ya tienes una tarea pendiente. Espera a acabarla para ejecutar otro comando."
   must-be-item-in-main-hand: "<kit_prefix> <red>Debes estar sosteniendo algún objeto en la mano principal.</red>"
+  full-inventory: "<red>Tienes el inventario lleno</red>"
 
 other:
   kit:
     title-gui: "<bold>Kits</bold>"
+    button-delete-kit: "<dark_gray>[<red><bold>ELIMINAR DEFINITIVAMENTE</red></bold>]</dark_gray>"
+    button-delete: "<dark_gray>[<red>❌</red>]</dark_gray>"
+    button-give: "<dark_gray>[<yellow>⚡</yellow>]</dark_gray>"
+    hover-click-to-delete: "<red>Eliminar</red>"
+    hover-click-to-check: "<yellow>Observar</yellow>"
