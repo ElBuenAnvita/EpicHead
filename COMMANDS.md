@@ -18,6 +18,7 @@ El comando base puede ser tanto `/epichead` como `/eh`
 | Comandos | Descripción | Permiso | Ejemplo |  
 | --- | --- | --- | --- |
 | `/eh help` | Lista los comandos que pertenecen a esta categoría | `epiclol.admin` | `/eh help` |
+| `/eh reload <file>` | Recarga cualquier archivo del plugin excepto el `config.yml` y el `acf-messages.yml`<br><li>`file`: Nombre del archivo a recargar</li> | `epiclol.admin.reload` | `/eh reload warps` |
 | `/eh setspawn` | Reubica o ubica por primera vez la ubicación de reaparición | `epiclol.admin`<br>`epiclol.admin.setspawn` | `/eh setspawn` |
 | `/eh warp add <name> [displayname]`<br>`/eh warp add <name> [displayname]` | Crea una _warp_ y establece su punto de aparición<br><li>`name`: Nombre del _warp_</li><li>`displayname`: Nombre con formato[^1]</li> | `epiclol.admin`<br>`epiclol.admin.warp.add` | `/eh warp add selva`<br><br>`/eh warp add selva <green>Selva</green>` |
 | `/eh warp relocate <name>`<br>`/eh warp rel <name>`<br>`/eh warp set <name>` | Establece el punto de aparición de una _warp_<br><li>`name`: Nombre del _warp_</li> | `epiclol.admin`<br>`epiclol.admin.warp.set` | `/eh warp rel selva` |

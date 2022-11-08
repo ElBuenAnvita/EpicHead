@@ -165,4 +165,38 @@ public class EpicHeadCommand extends BaseCommand {
             }
         });
     }
+
+    @Subcommand("reload messages")
+    @CommandPermission("epiclol.admin.reload")
+    public void onMessagesReload(CommandSender sender) {
+        MessageUtil.sendMessage(sender, "general.reload.warning", "Advertencia: Evite usar el comando de recarga");
+        Main.getInstance().loadMessagesInUTF();
+        Main.getInstance().loadCustomTags(true);
+        MessageUtil.sendMessage(sender, "general.reload.messages-success", "Mensajes recargados");
+    }
+
+    @Subcommand("reload kits")
+    @CommandPermission("epiclol.admin.reload")
+    public void onKitReload(CommandSender sender) {
+        MessageUtil.sendMessage(sender, "general.reload.warning", "Advertencia: Evite usar el comando de recarga");
+        Main.getInstance().loadKitsInUTF();
+        Main.getInstance().getKitHandler().reloadKits();
+        MessageUtil.sendMessage(sender, "general.kit.admin.kits-reloaded", "Kits recargados");
+    }
+
+    @Subcommand("reload warps")
+    @CommandPermission("epiclol.admin.reload")
+    public void onWarpReload(CommandSender sender) {
+        MessageUtil.sendMessage(sender, "general.reload.warning", "Advertencia: Evite usar el comando de recarga");
+        Main.getInstance().loadWarps();
+        MessageUtil.sendMessage(sender, "general.reload.warps-success", "Warps recargados");
+    }
+
+    @Subcommand("reload locations")
+    @CommandPermission("epiclol.admin.reload")
+    public void onLocationsReload(CommandSender sender) {
+        MessageUtil.sendMessage(sender, "general.reload.warning", "Advertencia: Evite usar el comando de recarga");
+        Main.getInstance().loadLocationsInUTF();
+        MessageUtil.sendMessage(sender, "general.reload.locations-reloaded", "Ubicaciones recargados");
+    }
 }

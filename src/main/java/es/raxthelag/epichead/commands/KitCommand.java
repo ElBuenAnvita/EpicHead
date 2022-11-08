@@ -224,6 +224,7 @@ public class KitCommand extends BaseCommand {
                         "Delay set to <time>",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName),
+                                Placeholder.parsed("kit_displayname", kit.getDisplayName()),
                                 Placeholder.unparsed("time", Util.getDurationSmall(delayTime.getTimeInMillis()))
                         )
                 );
@@ -260,7 +261,7 @@ public class KitCommand extends BaseCommand {
                     "Se ha añadido el item en mano al kit.",
                     TagResolver.resolver(
                             Placeholder.unparsed("kit", kitName.toLowerCase()),
-                            Placeholder.parsed("kit_display", kit.getDisplayName())
+                            Placeholder.parsed("kit_displayname", kit.getDisplayName())
                     )
             );
         }
@@ -288,7 +289,7 @@ public class KitCommand extends BaseCommand {
                     "El precio del kit <kit> ha ajustado a <price>.",
                     TagResolver.resolver(
                             Placeholder.unparsed("kit", kitName.toLowerCase()),
-                            Placeholder.parsed("kit_display", kit.getDisplayName()),
+                            Placeholder.parsed("kit_displayname", kit.getDisplayName()),
                             Placeholder.unparsed("price", Main.getInstance().getEconomy().format(price))
                     )
             );
@@ -317,7 +318,7 @@ public class KitCommand extends BaseCommand {
                         "Debes sostener un objeto al ejecutar este comando",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
-                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                                Placeholder.parsed("kit_displayname", kit.getDisplayName())
                         )
                 );
                 return;
@@ -332,7 +333,7 @@ public class KitCommand extends BaseCommand {
                     "Se ha añadido el item en mano al kit.",
                     TagResolver.resolver(
                             Placeholder.unparsed("kit", kitName.toLowerCase()),
-                            Placeholder.parsed("kit_display", kit.getDisplayName())
+                            Placeholder.parsed("kit_displayname", kit.getDisplayName())
                     )
             );
         }
@@ -355,7 +356,8 @@ public class KitCommand extends BaseCommand {
                         "general.kit.admin.template-item-list",
                         "<dark_gray>[<green><index></green>]</dark_gray> - <gray><yellow><item></yellow> * <item_qty></gray>",
                         TagResolver.resolver(
-                                Placeholder.unparsed("index", i+""),
+                                // Placeholder.unparsed("index", i+""),
+                                    Placeholder.component("index", Component.text(i+"").hoverEvent(HoverEvent.showText(MessageUtil.getComponent("other.kit.hover-index", "Indice"))).clickEvent(ClickEvent.copyToClipboard(i+""))),
                                 Placeholder.unparsed("item_name", itemStack.getType().toString()),
                                 Placeholder.component("item", Component.translatable(itemStack.translationKey()).hoverEvent(itemStack)),
                                 Placeholder.unparsed("item_qty", itemStack.getAmount()+""),
@@ -392,12 +394,12 @@ public class KitCommand extends BaseCommand {
 
                 MessageUtil.sendMessage(
                         player,
-                        "general.kit.admin.remove-item-success",
+                        "general.kit.admin.edit-remove-item-success",
                         "Se ha eliminado el item del kit.",
                         TagResolver.resolver(
                                 Placeholder.unparsed("index", index+""),
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
-                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                                Placeholder.parsed("kit_displayname", kit.getDisplayName())
                         )
                 );
             } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
@@ -407,7 +409,7 @@ public class KitCommand extends BaseCommand {
                         "Has especificado un indice fuera de los limites.",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
-                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                                Placeholder.parsed("kit_displayname", kit.getDisplayName())
                         )
                 );
             }
@@ -433,11 +435,11 @@ public class KitCommand extends BaseCommand {
                             TagResolver.resolver(
                                     Placeholder.unparsed("index", index+""),
                                     Placeholder.unparsed("kit", kitName.toLowerCase()),
-                                    Placeholder.parsed("kit_display", kit.getDisplayName())
+                                    Placeholder.parsed("kit_displayname", kit.getDisplayName())
                             )
                     );
                 } else {
-                    MessageUtil.sendMessage(player, "general.kit.admin.error.full-inventory", "Tienes el inventario lleno");
+                    MessageUtil.sendMessage(player, "error.full-inventory", "Tienes el inventario lleno");
                 }
             } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
                 MessageUtil.sendMessage(
@@ -446,7 +448,7 @@ public class KitCommand extends BaseCommand {
                         "Has especificado un indice fuera de los limites.",
                         TagResolver.resolver(
                                 Placeholder.unparsed("kit", kitName.toLowerCase()),
-                                Placeholder.parsed("kit_display", kit.getDisplayName())
+                                Placeholder.parsed("kit_displayname", kit.getDisplayName())
                         )
                 );
             }
@@ -454,6 +456,7 @@ public class KitCommand extends BaseCommand {
 
         @Subcommand("delete")
         @CommandPermission("epiclol.admin.kit.delete")
+        @CommandCompletion("@kits")
         public void kitWarnDelete(Player player, String kitName) {
             Kit kit = Main.getInstance().getKitHandler().getKit(kitName);
             if (kit == null) {

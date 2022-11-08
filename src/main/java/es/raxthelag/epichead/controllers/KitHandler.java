@@ -180,6 +180,9 @@ public class KitHandler {
         FileConfiguration fileConfiguration = Main.getInstance().getKits();
         ConfigurationSection section = fileConfiguration.getConfigurationSection("kits");
         if (section != null) {
+            for (String key : section.getKeys(false)) {
+                section.set(key, null);
+            }
             for (Kit kit : this.getKits()) {
                 section.set(kit.getName().toLowerCase(), kit);
             }

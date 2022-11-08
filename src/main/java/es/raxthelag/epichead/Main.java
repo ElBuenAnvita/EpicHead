@@ -226,6 +226,7 @@ public final class Main extends JavaPlugin {
     }
 
     public void loadWarps() {
+        warps.clear();
         // ConfigurationSection section = getConfig().getConfigurationSection("warps");
         ConfigurationSection section = getLocations().getConfigurationSection("warps");
         if (section == null) return;
